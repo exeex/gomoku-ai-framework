@@ -1,6 +1,6 @@
 from goboard import GomokuBattleHandler, init_plot_board, plot_board, GoBoard
 from goboard.player import StupidAi, Human
-from goboard.judge import BlackWin, WhiteWin, link_judge
+import goboard.judge as j
 import time
 
 with GomokuBattleHandler(Human, StupidAi, board_size=(11, 11)) as (black, white, board):
@@ -9,17 +9,19 @@ with GomokuBattleHandler(Human, StupidAi, board_size=(11, 11)) as (black, white,
         try:
             black.execute()
             plot_board(board)
-            link_judge(board, black)
+            j.link_judge(board, black)
             time.sleep(0.2)
 
             white.execute()
             plot_board(board)
-            link_judge(board, white)
+            j.link_judge(board, white)
             time.sleep(0.2)
 
-        except BlackWin:
-            print('black win')
-        except WhiteWin:
-            print('white win')
+        except j.BlackWin as e:
+            print(e)
+            break
+        except j.WhiteWin as e:
+            print(e)
+            break
 
     plot_board(board)
