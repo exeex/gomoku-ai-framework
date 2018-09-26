@@ -10,15 +10,22 @@ xray0h@gmail.com / cswu@gapp.nthu.edu.tw
 class GoBoard:
     def __init__(self, size=(13, 13), figsize=(6, 6)):
 
+        # set board size
         self.size = size
         self.size_x = size[0]
         self.size_y = size[1]
+
+        # set fig size
         self.figsize = figsize
+        # store each steps in a game
+        self.steps = []
+        # store where have be occupied (placement), to detect collisions
+        self.placements = set()
+
         self.plot_board()
 
-    @staticmethod
-    def show():
-        plt.show()
+    def show(self):
+        self.fig.show()
 
     def is_collision(self, x, y):
         placement_str = "%d,%d" % (x, y)
@@ -77,11 +84,7 @@ class GoBoard:
         self.ax.set_xlim(-1, self.size_x)
         self.ax.set_ylim(-1, self.size_y)
 
-        # store each steps in a game
-        self.steps = []
 
-        # store where have be occupied (placement), to detect collisions
-        self.placements = set()
 
     def step_back(self):
         lastest_step = self.steps.pop()
@@ -95,6 +98,12 @@ class GoBoard:
 
         self.steps.clear()
         self.placements.clear()
+
+    def ion(self):
+        plt.ion()
+
+    def ioff(self):
+        plt.ioff()
 
 
 def save_battle(file_name, board: GoBoard, **kwargs):
