@@ -1,5 +1,10 @@
 import matplotlib.pyplot as plt
 
+"""
+This is maintained by cswu
+xray0h@gmail.com / cswu@gapp.nthu.edu.tw
+"""
+
 
 class GoBoard:
     def __init__(self):
@@ -36,6 +41,16 @@ class GoBoard:
         # store where have be occupied (placement), to detect collisions
         self.placements = set()
 
+    def is_collision(self, x, y):
+        placement_str = "%d,%d" % (x, y)
+        if placement_str in self.placements:
+            return True
+        else:
+            return False
+
+    def add_placement(self, x, y):
+        self.placements.add("%d,%d" % (x, y))
+
     def put_black(self, x, y):
         self.__put(x, y, 'k')
 
@@ -59,7 +74,8 @@ class GoBoard:
             self.steps.append(step)
             self.add_placement(x, y)
 
-    def show(self):
+    @staticmethod
+    def show():
         plt.show()
 
     def step_back(self):
@@ -75,16 +91,6 @@ class GoBoard:
         self.steps.clear()
         self.placements.clear()
 
-    def is_collision(self, x, y):
-        placement_str = "%d,%d" % (x, y)
-        if placement_str in self.placements:
-            return True
-        else:
-            return False
-
-    def add_placement(self, x, y):
-        self.placements.add("%d,%d" % (x, y))
-
 
 if __name__ == '__main__':
     b = GoBoard()
@@ -93,4 +99,6 @@ if __name__ == '__main__':
     b.step_back()
     b.put_white(10, 11)
     b.clear_board()
+    b.put_black(0, 0)
+    b.put_white(10, 11)
     b.show()
