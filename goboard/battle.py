@@ -2,7 +2,7 @@ from .goboard import GoBoard, save_battle, load_battle
 from .player import Player
 
 class GomokuBattleHandler:
-    def __init__(self, black_player, white_player, battle_file="gg.json", load=False, board_size=None):
+    def __init__(self, black_player, white_player, battle_file="lastest_battle.json", load=False, board_size=None):
         if load:
             self.board = load_battle(battle_file)
             # TODO: continue battle
