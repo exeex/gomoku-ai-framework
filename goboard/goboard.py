@@ -8,24 +8,17 @@ xray0h@gmail.com / cswu@gapp.nthu.edu.tw
 
 
 class GoBoard:
-    def __init__(self, size=(13, 13), figsize=(6, 6)):
+    def __init__(self, size=(13, 13)):
 
         # set board size
         self.size = size
         self.size_x = size[0]
         self.size_y = size[1]
 
-        # set fig size
-        self.figsize = figsize
         # store each steps in a game
         self.steps = []
         # store where have be occupied (placement), to detect collisions
         self.placements = set()
-
-        self.plot_board()
-
-    def show(self):
-        self.fig.show()
 
     def is_collision(self, x, y):
         placement_str = "%d,%d" % (x, y)
@@ -52,62 +45,23 @@ class GoBoard:
             raise IndexError("You can't place black or white in (%d, %d)!!" % (x, y))
 
         else:
-            step = self.ax.plot(x, y, 'o', markersize=15, markeredgecolor=(.5, .5, .5), markerfacecolor=color,
-                                markeredgewidth=2)[0]
-
             placement_str = "%d,%d" % (x, y)
-            step = (placement_str, step, color)
+            step = (placement_str, color)
             self.steps.append(step)
             self.add_placement(x, y)
-
-    def plot_board(self):
-        # create a 6" x 6" board
-        self.fig = plt.figure(figsize=self.figsize)
-        self.fig.patch.set_facecolor((1, 1, .8))
-        self.ax = self.fig.add_subplot(111)
-
-        # draw the grid
-        for x in range(self.size_x):
-            self.ax.plot([x, x], [0, self.size_x - 1], 'k')
-        for y in range(self.size_y):
-            self.ax.plot([0, self.size_y - 1], [y, y], 'k')
-
-        # set axis label
-        self.ax.set_ylabel("y axis")
-        self.ax.set_xlabel("x axis")
-
-        # set axis ticks
-        self.ax.set_xticks([x for x in range(self.size_x)])
-        self.ax.set_yticks([y for y in range(self.size_y)])
-
-        # scale the plot area conveniently (the board is in 0,0..18,18)
-        self.ax.set_xlim(-1, self.size_x)
-        self.ax.set_ylim(-1, self.size_y)
-
-
 
     def step_back(self):
         lastest_step = self.steps.pop()
         self.placements.remove(lastest_step[0])
-        lastest_step[1].remove()
 
     def clear_board(self):
-
-        for step in self.steps:
-            step[1].remove()
 
         self.steps.clear()
         self.placements.clear()
 
-    def ion(self):
-        plt.ion()
-
-    def ioff(self):
-        plt.ioff()
-
 
 def save_battle(file_name, board: GoBoard, **kwargs):
-    xy, _, bw = tuple(zip(*board.steps))
+    xy, bw = tuple(zip(*board.steps))
 
     battle = {
         "battle_info": {
@@ -142,17 +96,58 @@ def load_battle(file_name):
 
     return b
 
+def init_plot_board(board: GoBoard, figsize=(6, 6)):
+    # create a 6" x 6" board
+    global fig, ax, step_cache
+    step_cache = []
+    fig = plt.figure(figsize=figsize)
+    fig.patch.set_facecolor((1, 1, .8))
+    ax = fig.add_subplot(111)
+
+    # draw the grid
+    for x in range(board.size_x):
+        ax.plot([x, x], [0, board.size_x - 1], 'k')
+    for y in range(board.size_y):
+        ax.plot([0, board.size_y - 1], [y, y], 'k')
+
+    # set axis label
+    ax.set_ylabel("y axis")
+    ax.set_xlabel("x axis")
+
+    # set axis ticks
+    ax.set_xticks([x for x in range(board.size_x)])
+    ax.set_yticks([y for y in range(board.size_y)])
+
+    # scale the plot area conveniently (the board is in 0,0..18,18)
+    ax.set_xlim(-1, board.size_x)
+    ax.set_ylim(-1, board.size_y)
+    fig.show()
+
+def plot_board(board: GoBoard):
+
+    global fig, ax
+
+    for step in board.steps:
+        x = int(step[0].split(',')[0])
+        y = int(step[0].split(',')[1])
+        color = step[1]
+        step = ax.plot(x, y, 'o', markersize=15, markeredgecolor=(.5, .5, .5), markerfacecolor=color,
+                      markeredgewidth=2)
+        step_cache.append(step[0])
+    fig.show()
 
 if __name__ == '__main__':
-    # b = GoBoard()
-    # b.put_black(0, 0)
-    # b.put_white(10, 11)
-    # b.step_back()
-    # b.put_white(10, 11)
-    # b.clear_board()
-    # b.put_black(0, 0)
-    # b.put_white(10, 11)
-    # b.show()
-    # save_battle("gg.json", b)
+    b = GoBoard()
+    b.put_black(0, 0)
+    b.put_white(10, 11)
+    b.step_back()
+    b.put_white(10, 11)
+    b.clear_board()
+    b.put_black(0, 0)
+    b.put_white(10, 11)
+    init_plot_board(b)
+    plot_board(b)
+    init_plot_board(b)
+    save_battle("gg.json", b)
 
     c = load_battle("gg.json")

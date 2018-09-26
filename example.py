@@ -1,14 +1,11 @@
-from goboard import GomokuBattleHandler
+from goboard import GomokuBattleHandler, init_plot_board, plot_board, GoBoard
 from goboard.player import StupidAi, Human
+import matplotlib.pyplot as plt
 
-
-
-
-with GomokuBattleHandler(StupidAi, Human, board_size=(11, 11)) as (black, white, board):
-    board.show()
+with GomokuBattleHandler(StupidAi, StupidAi, board_size=(11, 11)) as (black, white, board):
+    init_plot_board(board)
     for _ in range(11*11):
         black.execute()
-        board.show()
         white.execute()
-        board.show()
 
+    plot_board(board)
