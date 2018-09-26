@@ -1,4 +1,4 @@
-from .goboard import GoBoard
+from goboard.goboard import GoBoard
 
 
 class Player:
