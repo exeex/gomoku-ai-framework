@@ -73,20 +73,19 @@ class BoardCanvas(tkinter.Canvas):
             color = 'black'
         elif color == 'w':
             color = 'white'
-        if not self.board.is_collision(i, j):
-            self.create_oval(self.chess_board_points[i][j].pixel_x - 10,
-                             self.chess_board_points[i][j].pixel_y - 10,
-                             self.chess_board_points[i][j].pixel_x + 10,
-                             self.chess_board_points[i][j].pixel_y + 10, fill=color)
+        self.create_oval(self.chess_board_points[i][j].pixel_x - 10,
+                         self.chess_board_points[i][j].pixel_y - 10,
+                         self.chess_board_points[i][j].pixel_x + 10,
+                         self.chess_board_points[i][j].pixel_y + 10, fill=color)
 
             # if color == 'black' or color:
             #     self.board.put_black(i, j)
             # elif color == 'white':
             #     self.board.put_white(i, j)
 
-            tkinter.Canvas.update(self)
-        else:
-            raise IndexError
+        tkinter.Canvas.update(self)
+
+
 
     def put_black(self, i, j):
         self.put_stone(i, j, 'black')

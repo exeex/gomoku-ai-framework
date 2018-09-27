@@ -40,7 +40,7 @@ def load_battle(file_name):
     return b
 
 class Round:
-    def __init__(self, player, board):
+    def __init__(self, player, board: GoBoard):
         self.player = player
         self.board = board
         self.step_counter = None
@@ -53,6 +53,7 @@ class Round:
         tie_judge(self.board)
         move_judge(self.board, self.step_counter, self.player)
 
+        return self.board.steps[-1]
     def update_step_counter(self):
         self.step_counter = len(self.board)
 
