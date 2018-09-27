@@ -1,4 +1,4 @@
-from goboard.goboard import GoBoard
+from .goboard import GoBoard
 
 
 class Player:
@@ -36,10 +36,12 @@ class Human(Player):
     def execute(self):
 
         while True:
-            x = input("input x:\n")
-            y = input("input y:\n")
-            self.put(int(x), int(y))
-
+            try:
+                x = input("input x:\n")
+                y = input("input y:\n")
+                self.put(int(x), int(y))
+            except ValueError:
+                continue
             yn = input("Are you sure to place here?(Y/n)")
             if yn == 'n':
                 self.board.step_back()

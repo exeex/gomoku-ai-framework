@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-import json
 import numpy as np
 
 """
@@ -9,40 +7,53 @@ xray0h@gmail.com / cswu@gapp.nthu.edu.tw
 
 
 class GoBoard:
-    def __init__(self, size=(13, 13)):
+    def __init__(self, size=(13, 13), after_put=None):
 
         # set board size
         self.size = size
-        self.size_x = size[0]
-        self.size_y = size[1]
+        self.__size_x = size[0]
+        self.__size_y = size[1]
         # store each steps in a game
-        self.steps = []
-        self.dense = np.zeros((2, self.size_x, self.size_y), dtype=np.uint16)
+        self.__steps = []
+        self.__dense = np.zeros((2, self.__size_x, self.__size_y), dtype=np.uint16)
         # store where have be occupied (placement), to detect collisions
-        self.placements = set()
+        self.__placements = set()
+        self.after_put = after_put
 
     def __len__(self):
-        return len(self.placements)
+        return len(self.__placements)
+
+    @property
+    def steps(self):
+        return self.__steps
+    @property
+    def dense(self):
+        return self.__dense
+    @property
+    def size_x(self):
+        return self.__size_x
+    @property
+    def size_y(self):
+        return self.__size_y
 
     def is_collision(self, x, y):
         placement_str = "%d,%d" % (x, y)
-        if placement_str in self.placements:
+        if placement_str in self.__placements:
             return True
         else:
             return False
 
     def add_placement(self, x, y, color):
-        self.placements.add("%d,%d" % (x, y))
+        self.__placements.add("%d,%d" % (x, y))
         step = ((x, y), color)
-        self.steps.append(step)
+        self.__steps.append(step)
         if color == "w":
-            self.dense[1,x,y] = 1
+            self.__dense[1, x, y] = 1
         elif color == "k":
-            self.dense[0,x,y] = 1
+            self.__dense[0, x, y] = 1
 
     def _remove_placement(self, x, y):
-        self.placements.remove("%d,%d" % (x, y))
-
+        self.__placements.remove("%d,%d" % (x, y))
 
     def put_black(self, x, y):
         self._put(x, y, 'k')
@@ -52,110 +63,33 @@ class GoBoard:
 
     def _put(self, x, y, color):
 
-        if not (0 <= x < self.size_x) or not (0 <= y < self.size_y):
-            raise IndexError("Index must be >=0 and <%d. but you give us : (%d, %d)!!" % (self.size_x, x, y))
+        if not (0 <= x < self.__size_x) or not (0 <= y < self.__size_y):
+            raise IndexError("Index must be >=0 and <%d. but you give us : (%d, %d)!!" % (self.__size_x, x, y))
 
         if self.is_collision(x, y):
             raise IndexError("You can't place black or white in (%d, %d)!!" % (x, y))
 
-        if self.__len__() == self.size_x * self.size_y:
+        if self.__len__() == self.__size_x * self.__size_y:
             raise IndexError("There is no empty space on the board!!")
 
         self.add_placement(x, y, color)
 
+        if self.after_put:
+            self.after_put(x, y, color)
+
     def step_back(self):
-        lastest_step = self.steps.pop()
+        lastest_step = self.__steps.pop()
         self._remove_placement(*lastest_step[0])
-        self.dense[0,lastest_step[0][0],lastest_step[0][1]] = 0
-        self.dense[0,lastest_step[0][0],lastest_step[0][1]] = 0
+        self.__dense[0, lastest_step[0][0], lastest_step[0][1]] = 0
+        self.__dense[0, lastest_step[0][0], lastest_step[0][1]] = 0
 
     def clear_board(self):
-
-        self.steps.clear()
-        self.placements.clear()
-
-
-def save_battle(file_name, board: GoBoard, **kwargs):
-    xy, bw = tuple(zip(*board.steps))
-
-    battle = {
-        "battle_info": {
-            "board_size": board.size,
-            "other_info": kwargs,
-        },
-        "steps": list(zip(xy, bw)),
-    }
-
-    json_str = json.dumps(battle)
-
-    try:
-        f = open(file_name, 'w')
-    except FileExistsError:
-        raise FileExistsError
-
-    f.write(json_str)
-
-
-def load_battle(file_name):
-    f = open(file=file_name, mode='r')
-    data = json.load(f)
-    steps = data['steps']
-    board_size = data['battle_info']['board_size']
-
-    b = GoBoard(size=board_size)
-
-    for step in steps:
-        x, y = step[0][0], step[0][1]
-        color = step[1]
-        b._put(int(x), int(y), color=color)
-
-    return b
-
-
-def init_plot_board(board: GoBoard, figsize=(6, 6)):
-    # create a 6" x 6" board
-    global fig, ax, step_cache
-    step_cache = []
-    fig = plt.figure(figsize=figsize)
-    fig.patch.set_facecolor((1, 1, .8))
-    ax = fig.add_subplot(111)
-
-    # draw the grid
-    for x in range(board.size_x):
-        ax.plot([x, x], [0, board.size_x - 1], 'k')
-    for y in range(board.size_y):
-        ax.plot([0, board.size_y - 1], [y, y], 'k')
-
-    # set axis label
-    ax.set_ylabel("y axis")
-    ax.set_xlabel("x axis")
-
-    # set axis ticks
-    ax.set_xticks([x for x in range(board.size_x)])
-    ax.set_yticks([y for y in range(board.size_y)])
-
-    # scale the plot area conveniently (the board is in 0,0..18,18)
-    ax.set_xlim(-1, board.size_x)
-    ax.set_ylim(-1, board.size_y)
-    fig.show()
-
-
-def plot_board(board: GoBoard):
-    global fig, ax
-
-    for step in board.steps:
-        x = int(step[0][0])
-        y = int(step[0][1])
-        color = step[1]
-        step = ax.plot(x, y, 'o', markersize=15, markeredgecolor=(.5, .5, .5), markerfacecolor=color,
-                       markeredgewidth=2)
-        step_cache.append(step[0])
-    fig.show()
+        self.__steps.clear()
+        self.__placements.clear()
 
 
 if __name__ == '__main__':
     b = GoBoard()
-    init_plot_board(b)
     b.put_black(0, 0)
     b.put_white(10, 11)
     b.step_back()
@@ -163,7 +97,6 @@ if __name__ == '__main__':
     b.clear_board()
     b.put_black(0, 0)
     b.put_white(10, 11)
-    plot_board(b)
 
     print(b.dense)
     # save_battle("gg.json", b)
