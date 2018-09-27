@@ -1,7 +1,6 @@
-from goboard import GomokuBattleHandler, GoBoard
-from goboard.plot import init_plot_board, plot_board
-from goboard.player import StupidAi, Human, HumanGui
-import goboard.judge as j
+from goboard import GomokuBattleHandler
+from goboard.player import StupidAi, HumanGui
+from goboard.judge import Win,Lose
 
 with GomokuBattleHandler(HumanGui, StupidAi, board_size=(13, 13)) as (black_round, white_round, board):
     for _ in range(11 * 11 // 2):
@@ -9,10 +8,11 @@ with GomokuBattleHandler(HumanGui, StupidAi, board_size=(13, 13)) as (black_roun
             black_round()
             white_round()
 
-        except j.Win as e:
+        except Win as e:
             print(e)
             break
-        except j.Lose as e:
+
+        except Lose as e:
             print(e)
             break
 

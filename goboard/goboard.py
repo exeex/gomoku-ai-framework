@@ -84,6 +84,7 @@ class GoBoard:
         self.__dense[0, lastest_step[0][0], lastest_step[0][1]] = 0
 
     def clear_board(self):
+        self.__dense = np.zeros((2, self.__size_x, self.__size_y), dtype=np.uint16)
         self.__steps.clear()
         self.__placements.clear()
 
