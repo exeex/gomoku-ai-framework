@@ -1,5 +1,8 @@
 from .goboard import GoBoard
 
+import tkinter as tk
+from .gui import BoardFrame
+
 
 class Player:
     def __init__(self, board: GoBoard, black_or_white="black"):
@@ -26,6 +29,9 @@ class Player:
             self.board.put_white(x, y)
         else:
             raise NameError("You only can choose white or black!")
+
+    def after_battle(self):
+        pass
 
 
 class Human(Player):
@@ -74,3 +80,43 @@ class StupidAi(Player):
                     return
                 except IndexError:
                     continue
+
+
+class HumanGui(Player):
+    def __init__(self, board: GoBoard, black_or_white):
+        super(HumanGui, self).__init__(board, black_or_white)
+        self.bw = black_or_white
+        self.board = board
+        self.create_gui(self.board)
+
+    @staticmethod
+    def get_tk():
+        global tk_instance
+        try:
+            return tk_instance
+        except NameError:
+            tk_instance = tk.Tk()
+            return tk_instance
+
+    @classmethod
+    def create_gui(cls, board):
+        cls.window = HumanGui.get_tk()
+        try:
+            cls.board_frame.pack()
+        except AttributeError:
+            cls.board_frame = BoardFrame(board, cls.window)
+            cls.board_frame.pack()
+
+        board.after_put = cls.board_frame.board_canvas.put_stone_on_gui
+        cls.window.update_idletasks()
+
+    def execute(self):
+        while not self.board_frame.board_canvas.clicked:
+            self.window.update()
+        x, y = self.board_frame.board_canvas.put_temp
+        self.put(x, y)
+        self.board_frame.board_canvas.clicked = False
+
+    def after_battle(self):
+        while True:
+            self.window.update()

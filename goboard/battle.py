@@ -68,10 +68,10 @@ class GomokuBattleHandler:
                 self.board = GoBoard(size=board_size)
             else:
                 self.board = GoBoard()
-
         try:
             self.black_player = black_player(self.board, "black")
             self.white_player = white_player(self.board, "white")
+
         except TypeError:
             raise TypeError("black_player and white_player must be class which inherit goboard.player.Player.")
 
@@ -89,3 +89,5 @@ class GomokuBattleHandler:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         save_battle(self.log_file, self.board)
+        self.black_player.after_battle()
+        self.white_player.after_battle()
