@@ -1,7 +1,9 @@
 from .goboard import GoBoard
 from .player import Player
+from .gui import GuiManager, DummyGuiManager
 from .judge import time_judge, link_judge, tie_judge, move_judge
 import json
+
 
 def save_battle(file_name, board: GoBoard, **kwargs):
     xy, bw = tuple(zip(*board.steps))
@@ -39,6 +41,7 @@ def load_battle(file_name):
 
     return b
 
+
 class Round:
     def __init__(self, player, board: GoBoard):
         self.player = player
@@ -52,14 +55,16 @@ class Round:
         link_judge(self.board, self.player)
         tie_judge(self.board)
         move_judge(self.board, self.step_counter, self.player)
-
         return self.board.steps[-1]
+
     def update_step_counter(self):
         self.step_counter = len(self.board)
 
 
 class GomokuBattleHandler:
-    def __init__(self, black_player, white_player, battle_file="lastest_battle.json", load=False, board_size=None):
+    def __init__(self, black_player, white_player, battle_file="lastest_battle.json", load=False, use_gui=True,
+                 board_size=None):
+
         if load:
             self.board = load_battle(battle_file)
             # TODO: continue battle
@@ -68,9 +73,15 @@ class GomokuBattleHandler:
                 self.board = GoBoard(size=board_size)
             else:
                 self.board = GoBoard()
+
+        if use_gui:
+            self.gui = GuiManager(self.board)
+        else:
+            self.gui = DummyGuiManager(self.board)
+
         try:
-            self.black_player = black_player(self.board, "black")
-            self.white_player = white_player(self.board, "white")
+            self.black_player = black_player(self.board, self.gui, "black")
+            self.white_player = white_player(self.board, self.gui, "white")
 
         except TypeError:
             raise TypeError("black_player and white_player must be class which inherit goboard.player.Player.")
@@ -88,6 +99,7 @@ class GomokuBattleHandler:
         return self.black_round, self.white_round, self.board
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        save_battle(self.log_file, self.board)
+        # save_battle(self.log_file, self.board)
         self.black_player.after_battle()
         self.white_player.after_battle()
+        self.gui.after_battle()

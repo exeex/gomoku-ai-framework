@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from tkinter import TclError
 import tkinter as tk
 import math
 from .goboard import GoBoard
@@ -95,3 +96,82 @@ class BoardFrame(tk.Frame):
         self.board_canvas.bind('<Button-1>', self.board_canvas.click_listener)
         self.chess_board_label_frame.pack()
         self.board_canvas.pack()
+
+
+class GuiManager:
+    def __init__(self, board: GoBoard):
+        self.board = board
+        self.bind_gui(self.board)
+
+    @staticmethod
+    def get_tk():
+        global tk_instance
+        try:
+            return tk_instance
+        except NameError:
+            tk_instance = tk.Tk()
+            return tk_instance
+
+    @classmethod
+    def bind_gui(cls, board):
+        cls.window = GuiManager.get_tk()
+        try:
+            cls.board_frame.pack()
+        except AttributeError:
+            cls.board_frame = BoardFrame(board, cls.window)
+            cls.board_frame.pack()
+
+        board.after_put = cls.board_frame.board_canvas.put_stone_on_gui
+        cls.window.update_idletasks()
+
+    def get_put_index(self):
+        while not self.board_frame.board_canvas.clicked:
+            self.window.update()
+
+        x, y = self.board_frame.board_canvas.put_temp
+        self.board_frame.board_canvas.clicked = False
+        return x, y
+
+    def update_screen(self):
+        self.window.update()
+
+    def after_battle(self):
+        try:
+            while True:
+                self.window.update()
+        except TclError:
+            pass
+
+
+class DummyGuiManager:
+    def __init__(self, board: GoBoard):
+        self.board = board
+
+    def bind_gui(cls, board):
+        pass
+
+    def get_put_index(self):
+
+        while True:
+
+            try:
+                x = int(input("input x:\n"))
+                y = int(input("input y:\n"))
+
+                if not self.board.is_collision(x, y):
+                    return x, y
+                else:
+                    print("Collision!")
+                    continue
+            except ValueError:
+                continue
+
+
+
+
+
+    def update_screen(self):
+        pass
+
+    def after_battle(self):
+        pass

@@ -1,15 +1,12 @@
 from goboard import GomokuBattleHandler
-from goboard.plot import init_plot_board, plot_board
-from goboard.player import StupidAi
+from goboard.player import Human, Human
 from goboard.judge import Win, Lose, Tie
-
-with GomokuBattleHandler(black_player=StupidAi,
-                         white_player=StupidAi,
-                         board_size=(11, 11),
-                         battle_file="lastest_battle.json") \
+with GomokuBattleHandler(black_player=Human,
+                         white_player=Human,
+                         board_size=(13, 13),
+                         battle_file="lastest_battle.json",
+                         use_gui=True) \
                          as (black_round, white_round, board):
-
-    init_plot_board(board)
 
     while True:
         try:
@@ -25,4 +22,3 @@ with GomokuBattleHandler(black_player=StupidAi,
             print(e)
             break
 
-    plot_board(board)

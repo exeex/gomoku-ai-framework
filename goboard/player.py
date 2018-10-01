@@ -1,17 +1,19 @@
 from .goboard import GoBoard
 
 import tkinter as tk
-from .gui import BoardFrame
+from .gui import BoardFrame, GuiManager
 
 
 class Player:
-    def __init__(self, board: GoBoard, black_or_white="black"):
+    def __init__(self, board: GoBoard, gui: GuiManager, black_or_white="black"):
         """
         :param board: A GoBoard instance.
         :param black_or_white: to tell the ai what color he is playing. "black" or "white"
          """
         self.board = board
         self.bw = black_or_white
+        if gui:
+            self.gui = gui
 
     def execute(self):
         """
@@ -25,8 +27,13 @@ class Player:
     def put(self, x, y):
         if self.bw == "black":
             self.board.put_black(x, y)
+            if self.gui:
+                self.gui.update_screen()
+
         elif self.bw == "white":
             self.board.put_white(x, y)
+            if self.gui:
+                self.gui.update_screen()
         else:
             raise NameError("You only can choose white or black!")
 
@@ -34,32 +41,10 @@ class Player:
         pass
 
 
-class Human(Player):
-    def __init__(self, board: GoBoard, black_or_white="black"):
-
-        super(Human, self).__init__(board, black_or_white)
-
-    def execute(self):
-
-        while True:
-            try:
-                x = input("input x:\n")
-                y = input("input y:\n")
-                self.put(int(x), int(y))
-            except ValueError:
-                continue
-            yn = input("Are you sure to place here?(Y/n)")
-            if yn == 'n':
-                self.board.step_back()
-                continue
-
-            break
-
-
 class StupidAi(Player):
-    def __init__(self, board: GoBoard, black_or_white="white"):
+    def __init__(self, board: GoBoard, gui: GuiManager, black_or_white="white"):
 
-        super(StupidAi, self).__init__(board, black_or_white)
+        super(StupidAi, self).__init__(board, gui, black_or_white)
 
     def execute(self):
         """
@@ -82,41 +67,13 @@ class StupidAi(Player):
                     continue
 
 
-class HumanGui(Player):
-    def __init__(self, board: GoBoard, black_or_white):
-        super(HumanGui, self).__init__(board, black_or_white)
+class Human(Player):
+    def __init__(self, board: GoBoard, gui: GuiManager, black_or_white):
+        super(Human, self).__init__(board, gui, black_or_white)
         self.bw = black_or_white
         self.board = board
-        self.create_gui(self.board)
-
-    @staticmethod
-    def get_tk():
-        global tk_instance
-        try:
-            return tk_instance
-        except NameError:
-            tk_instance = tk.Tk()
-            return tk_instance
-
-    @classmethod
-    def create_gui(cls, board):
-        cls.window = HumanGui.get_tk()
-        try:
-            cls.board_frame.pack()
-        except AttributeError:
-            cls.board_frame = BoardFrame(board, cls.window)
-            cls.board_frame.pack()
-
-        board.after_put = cls.board_frame.board_canvas.put_stone_on_gui
-        cls.window.update_idletasks()
+        self.gui = gui
 
     def execute(self):
-        while not self.board_frame.board_canvas.clicked:
-            self.window.update()
-        x, y = self.board_frame.board_canvas.put_temp
+        x, y = self.gui.get_put_index()
         self.put(x, y)
-        self.board_frame.board_canvas.clicked = False
-
-    def after_battle(self):
-        while True:
-            self.window.update()
