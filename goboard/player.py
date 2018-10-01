@@ -5,7 +5,7 @@ from .gui import BoardFrame, GuiManager
 
 
 class Player:
-    def __init__(self, board: GoBoard, gui: GuiManager, black_or_white="black"):
+    def __init__(self, board: GoBoard, gui=None, black_or_white="black"):
         """
         :param board: A GoBoard instance.
         :param black_or_white: to tell the ai what color he is playing. "black" or "white"

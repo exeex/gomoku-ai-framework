@@ -16,6 +16,7 @@ class Lose(Exception):
         self.loser = player
         super(Lose, self).__init__(msg)
 
+
 class BlackWin(Exception):
     def __init__(self, *arg):
         super(BlackWin, self).__init__(*arg)
@@ -31,14 +32,9 @@ class Tie(Exception):
         super(Tie, self).__init__(*arg)
 
 
-
-def time_judge(func, player):
-    #TODO: implement overtime lose and timer
-
-    func()
-    if False:
-        raise TimeoutError("%s is runing out of time" % player.bw)
-    pass
+def time_judge(player):
+    # TODO: implement overtime lose and timer
+    player.execute()
 
 
 def link_judge(board: GoBoard, player: Player):
@@ -95,7 +91,7 @@ if __name__ == '__main__':
     from goboard import init_plot_board, plot_board
 
     b = GoBoard()
-    p = Player(b, 'white')
+    p = Player(b, black_or_white='white')
     init_plot_board(b)
     b.put_white(0, 0)
     b.put_white(1, 0)

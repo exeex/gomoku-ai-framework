@@ -51,7 +51,7 @@ class Round:
 
     def __call__(self, *args, **kwargs):
         self.update_step_counter()
-        time_judge(self.player.execute, self.player)
+        time_judge(self.player)
         link_judge(self.board, self.player)
         tie_judge(self.board)
         move_judge(self.board, self.step_counter, self.player)
@@ -102,4 +102,4 @@ class GomokuBattleHandler:
         # save_battle(self.log_file, self.board)
         self.black_player.after_battle()
         self.white_player.after_battle()
-        self.gui.after_battle()
+        # self.gui.after_battle()
