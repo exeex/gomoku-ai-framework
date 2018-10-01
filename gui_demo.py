@@ -1,8 +1,8 @@
 from goboard import GomokuBattleHandler
-from goboard.player import StupidAi, HumanGui
+from goboard.player import StupidAi, Human
 from goboard.judge import Win,Lose
 
-with GomokuBattleHandler(HumanGui, StupidAi, board_size=(13, 13)) as (black_round, white_round, board):
+with GomokuBattleHandler(Human, StupidAi, board_size=(13, 13)) as (black_round, white_round, board):
     for _ in range(11 * 11 // 2):
         try:
             black_round()

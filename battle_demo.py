@@ -1,5 +1,5 @@
 from goboard import GomokuBattleHandler
-from goboard.player import Human, Human
+from goboard.player import StupidAi, Human
 from goboard.judge import Win, Lose, Tie
 with GomokuBattleHandler(black_player=Human,
                          white_player=Human,
