@@ -1,5 +1,5 @@
 import numpy as np
-
+from copy import deepcopy
 """
 This is maintained by cswu
 xray0h@gmail.com / cswu@gapp.nthu.edu.tw
@@ -43,7 +43,7 @@ class GoBoard:
         else:
             return False
 
-    def add_placement(self, x, y, color):
+    def __add_placement(self, x, y, color):
         self.__placements.add("%d,%d" % (x, y))
         step = ((x, y), color)
         self.__steps.append(step)
@@ -78,7 +78,7 @@ class GoBoard:
         if self.__len__() == self.__size_x * self.__size_y:
             raise IndexError("There is no empty space on the board!!")
 
-        self.add_placement(x, y, color)
+        self.__add_placement(x, y, color)
 
         if self.after_put:
             self.after_put(x, y, color)
