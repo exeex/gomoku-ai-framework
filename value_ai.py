@@ -3,31 +3,25 @@ from random import choice
 import numpy as np
 from math import log, sqrt
 from copy import deepcopy
-from goboard import Board, Player
+import time
+from goboard import BoardInfo, Player
 
 
-def analysis_board(board: Board):
+def analysis_board(board: BoardInfo):
     return 0
 
 
 class ValueNetAi(Player):
-    def __init__(self, board_info, gui, bw):
-        super(ValueNetAi, self).__init__(board_info, gui, bw)
-
-        # C: UCB1常數, MAX_TIME: 模擬時間, MAX_MOVE: 最大移動步數
-        # board: 目前盤面 player: 代表玩家
-        # states: 狀態表
-        # wins, plays: 贏棋的次數, 模擬的次數
+    def __init__(self, board_info, gui, color):
+        super(ValueNetAi, self).__init__(board_info, gui, color)
 
         self.board_info = board_info
-        self.bw = bw
-        self.C = 1.4
         self.MAX_TIME = 3
         self.MAX_MOVE = 100
         self.MAX_DEPTH = 1
         self.value = np.zeros((self.board_info.size_x, self.board_info.size_y))
 
-    def find_actions(self, board: Board):
+    def find_actions(self, board: BoardInfo):
 
         possible_actions = [[(x + 1, y),
                            (x - 1, y),
@@ -51,9 +45,10 @@ class ValueNetAi(Player):
 
         return actions
 
-    def get_action(self, board: Board):
+    def get_action(self, board: BoardInfo):
         actions = self.find_actions(board)
         print(actions)
+        time.sleep(2)
 
         for action in actions:
             if not board.is_legal_action(*action):

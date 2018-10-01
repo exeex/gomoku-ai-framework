@@ -10,7 +10,7 @@ class Board:
     def __init__(self, size=(13, 13), after_put=None):
 
         # set board size
-        self.size = size
+        self.__size = size
         self.__size_x = size[0]
         self.__size_y = size[1]
         # store each steps in a game
@@ -23,6 +23,9 @@ class Board:
     def __len__(self):
         return len(self.__placements)
 
+    @property
+    def size(self):
+        return self.__steps
     @property
     def steps(self):
         return self.__steps
@@ -85,6 +88,8 @@ class Board:
         if self.after_put:
             self.after_put(x, y, color)
 
+    def get_info(self):
+        return BoardInfo(self)
     # def step_back(self):
     #     lastest_step = self.__steps.pop()
     #     self._remove_placement(*lastest_step[0])
@@ -103,6 +108,17 @@ class Board:
     #             if not self.is_collision(i, j):
     #                 moves.append((i, j))
     #     return moves
+
+class BoardInfo:
+    def __init__(self, board: Board):
+        self.size = board.size
+        self.steps = deepcopy(board.steps)
+        self.dense = deepcopy(board.dense)
+        self.size_x = board.size_x
+        self.size_y = board.size_y
+        self.is_legal_action = board.is_legal_action
+
+
 
 
 if __name__ == '__main__':

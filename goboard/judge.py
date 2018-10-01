@@ -1,6 +1,8 @@
-from .board import Board
-from .player import Player
+from .board import Board, BoardInfo
+from .player import Player, Human
 import numpy as np
+import threading
+import time
 
 
 class Win(Exception):
@@ -37,16 +39,40 @@ class ColorError(Exception):
         super(ColorError, self).__init__(*arg)
 
 
-def time_judge(board: Board, player: Player, color):
+def time_judge(board: Board, player: Player, color, timeout=10):
     # TODO: implement overtime lose and timer
-    x, y = player.get_action(board)
 
-    if color=='white':
-        board.put_white(x, y)
-    elif color=='black':
-        board.put_black(x, y)
+    if not isinstance(player, Human):
+
+        def get_action_wrap(board_info, data_dict):
+            x, y = player.get_action(board_info)
+            data_dict['x'] = x
+            data_dict['y'] = y
+
+        xy_dict = {'x': -1, 'y': -1}
+        p = threading.Thread(target=get_action_wrap, name="get_action",
+                             args=(board.get_info(), xy_dict))
+        p.start()
+        p.join(timeout)
+
+        try:
+            if color == 'white':
+                board.put_white(xy_dict['x'], xy_dict['y'])
+            elif color == 'black':
+                board.put_black(xy_dict['x'], xy_dict['y'])
+            else:
+                raise ColorError
+
+        except IndexError:
+            raise Lose(player, "running out of time")
     else:
-        raise ColorError
+        x, y = player.get_action(board.get_info())
+        if color == 'white':
+            board.put_white(x, y)
+        elif color == 'black':
+            board.put_black(x, y)
+        else:
+            raise ColorError
 
 
 def link_judge(board: Board, player: Player, color):
@@ -83,6 +109,7 @@ def move_judge(board: Board, step_counter, player: Player, color):
 
 
 def tie_judge(board: Board, color):
+    # TODO: white win
     if len(board) == board.size_x * board.size_y:
         raise Tie('there is no more space on the board!!!')
 

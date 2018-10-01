@@ -1,11 +1,11 @@
-from .board import Board
+from .board import Board, BoardInfo
 
 import tkinter as tk
 from .gui import BoardFrame, GuiManager
 
 
 class Player:
-    def __init__(self, board_info: Board, gui=None, color="black"):
+    def __init__(self, board_info: BoardInfo, gui=None, color="black"):
         """
         :param board_info: A GoBoard instance.
         :param color: to tell the ai what color he is playing. "black" or "white"
@@ -14,7 +14,7 @@ class Player:
         self.color = color
         self.gui = gui
 
-    def get_action(self, board: Board) -> (int, int):
+    def get_action(self, board: BoardInfo) -> (int, int):
         """
         Implement your algorithm here.
         To get the current status of the GoBoard, you might call self.board.steps and analysis it by your ai algorithm
@@ -28,10 +28,10 @@ class Player:
 
 
 class StupidAi(Player):
-    def __init__(self, board_info: Board, gui: GuiManager, color="white"):
+    def __init__(self, board_info: BoardInfo, gui: GuiManager, color="white"):
         super(StupidAi, self).__init__(board_info, gui, color)
 
-    def get_action(self, board: Board) -> (int, int):
+    def get_action(self, board: BoardInfo) -> (int, int):
         """
             Implement your algorithm here.
 
@@ -53,7 +53,7 @@ class StupidAi(Player):
 
 
 class Human(Player):
-    def __init__(self, board_info: Board, gui: GuiManager, color):
+    def __init__(self, board_info: BoardInfo, gui: GuiManager, color):
         super(Human, self).__init__(board_info, gui, color)
 
     def get_action(self, board: Board):

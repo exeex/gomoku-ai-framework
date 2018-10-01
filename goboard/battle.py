@@ -52,7 +52,7 @@ class Round:
 
     def __call__(self, *args, **kwargs):
         self.update_step_counter()
-        time_judge(self.board, self.player, self.color)
+        time_judge(self.board, self.player, self.color, timeout=10)
         link_judge(self.board, self.player, self.color)
         tie_judge(self.board, self.color)
         move_judge(self.board, self.step_counter, self.player, self.color)
@@ -72,10 +72,8 @@ class GomokuBattleHandler:
         else:
             if board_size:
                 self.board = Board(size=board_size)
-                self.dummy_board = Board(size=board_size)
             else:
                 self.board = Board()
-                self.dummy_board = Board()
 
         if use_gui:
             self.gui = GuiManager(self.board)
@@ -83,8 +81,8 @@ class GomokuBattleHandler:
             self.gui = DummyGuiManager(self.board)
 
         try:
-            self.black_player = black_player(self.dummy_board, self.gui, "black")
-            self.white_player = white_player(self.dummy_board, self.gui, "white")
+            self.black_player = black_player(self.board.get_info(), self.gui, "black")
+            self.white_player = white_player(self.board.get_info(), self.gui, "white")
 
         except TypeError:
             raise TypeError("black_player and white_player must be class which inherit goboard.player.Player.")
