@@ -1,8 +1,8 @@
-from goboard import GoBoard
+from goboard import Board
 from goboard.battle import save_battle, load_battle
 
 #init board
-b = GoBoard()
+b = Board()
 
 # put black stone and white stone on the board
 b.put_black(0, 0)

@@ -1,11 +1,11 @@
-from .goboard import GoBoard
+from .board import Board
 from .player import Player
 from .gui import GuiManager, DummyGuiManager
 from .judge import time_judge, link_judge, tie_judge, move_judge
 import json
 
 
-def save_battle(file_name, board: GoBoard, **kwargs):
+def save_battle(file_name, board: Board, **kwargs):
     xy, bw = tuple(zip(*board.steps))
 
     battle = {
@@ -32,7 +32,7 @@ def load_battle(file_name):
     steps = data['steps']
     board_size = data['battle_info']['board_size']
 
-    b = GoBoard(size=board_size)
+    b = Board(size=board_size)
 
     for step in steps:
         x, y = step[0][0], step[0][1]
@@ -43,18 +43,19 @@ def load_battle(file_name):
 
 
 class Round:
-    def __init__(self, player, board: GoBoard):
+    def __init__(self, player: Player, board: Board):
         self.player = player
         self.board = board
+        self.color = player.color
         self.step_counter = None
         self.update_step_counter()
 
     def __call__(self, *args, **kwargs):
         self.update_step_counter()
-        time_judge(self.player)
-        link_judge(self.board, self.player)
-        tie_judge(self.board)
-        move_judge(self.board, self.step_counter, self.player)
+        time_judge(self.board, self.player, self.color)
+        link_judge(self.board, self.player, self.color)
+        tie_judge(self.board, self.color)
+        move_judge(self.board, self.step_counter, self.player, self.color)
         return self.board.steps[-1]
 
     def update_step_counter(self):
@@ -70,9 +71,11 @@ class GomokuBattleHandler:
             # TODO: continue battle
         else:
             if board_size:
-                self.board = GoBoard(size=board_size)
+                self.board = Board(size=board_size)
+                self.dummy_board = Board(size=board_size)
             else:
-                self.board = GoBoard()
+                self.board = Board()
+                self.dummy_board = Board()
 
         if use_gui:
             self.gui = GuiManager(self.board)
@@ -80,8 +83,8 @@ class GomokuBattleHandler:
             self.gui = DummyGuiManager(self.board)
 
         try:
-            self.black_player = black_player(self.board, self.gui, "black")
-            self.white_player = white_player(self.board, self.gui, "white")
+            self.black_player = black_player(self.dummy_board, self.gui, "black")
+            self.white_player = white_player(self.dummy_board, self.gui, "white")
 
         except TypeError:
             raise TypeError("black_player and white_player must be class which inherit goboard.player.Player.")

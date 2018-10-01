@@ -1,8 +1,8 @@
-from .goboard import GoBoard
+from .board import Board
 import matplotlib.pyplot as plt
 
 
-def init_plot_board(board: GoBoard, figsize=(6, 6)):
+def init_plot_board(board: Board, figsize=(6, 6)):
     # create a 6" x 6" board
     global fig, ax, step_cache
     step_cache = []
@@ -30,7 +30,7 @@ def init_plot_board(board: GoBoard, figsize=(6, 6)):
     fig.show()
 
 
-def plot_board(board: GoBoard):
+def plot_board(board: Board):
     global fig, ax
 
     for step in board.steps:

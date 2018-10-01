@@ -1,21 +1,20 @@
-from .goboard import GoBoard
+from .board import Board
 
 import tkinter as tk
 from .gui import BoardFrame, GuiManager
 
 
 class Player:
-    def __init__(self, board: GoBoard, gui=None, black_or_white="black"):
+    def __init__(self, board_info: Board, gui=None, color="black"):
         """
-        :param board: A GoBoard instance.
-        :param black_or_white: to tell the ai what color he is playing. "black" or "white"
+        :param board_info: A GoBoard instance.
+        :param color: to tell the ai what color he is playing. "black" or "white"
          """
-        self.board = board
-        self.bw = black_or_white
-        if gui:
-            self.gui = gui
+        self.board_info = board_info
+        self.color = color
+        self.gui = gui
 
-    def execute(self):
+    def get_action(self, board: Board) -> (int, int):
         """
         Implement your algorithm here.
         To get the current status of the GoBoard, you might call self.board.steps and analysis it by your ai algorithm
@@ -24,29 +23,15 @@ class Player:
         """
         raise NotImplementedError
 
-    def put(self, x, y):
-        if self.bw == "black":
-            self.board.put_black(x, y)
-            if self.gui:
-                self.gui.update_screen()
-
-        elif self.bw == "white":
-            self.board.put_white(x, y)
-            if self.gui:
-                self.gui.update_screen()
-        else:
-            raise NameError("You only can choose white or black!")
-
     def after_battle(self):
         pass
 
 
 class StupidAi(Player):
-    def __init__(self, board: GoBoard, gui: GuiManager, black_or_white="white"):
+    def __init__(self, board_info: Board, gui: GuiManager, color="white"):
+        super(StupidAi, self).__init__(board_info, gui, color)
 
-        super(StupidAi, self).__init__(board, gui, black_or_white)
-
-    def execute(self):
+    def get_action(self, board: Board) -> (int, int):
         """
             Implement your algorithm here.
 
@@ -58,22 +43,19 @@ class StupidAi(Player):
             :return:
             """
 
-        for x in range(0, self.board.size_x):
-            for y in range(0, self.board.size_y):
-                try:
-                    self.put(x, y)
-                    return
-                except IndexError:
+        for x in range(0, board.size_x):
+            for y in range(0, board.size_y):
+                if not board.is_legal_action(x, y):
+                    return x,y
+                else:
                     continue
 
 
-class Human(Player):
-    def __init__(self, board: GoBoard, gui: GuiManager, black_or_white):
-        super(Human, self).__init__(board, gui, black_or_white)
-        self.bw = black_or_white
-        self.board = board
-        self.gui = gui
 
-    def execute(self):
+class Human(Player):
+    def __init__(self, board_info: Board, gui: GuiManager, color):
+        super(Human, self).__init__(board_info, gui, color)
+
+    def get_action(self, board: Board):
         x, y = self.gui.get_put_index()
-        self.put(x, y)
+        return x, y

@@ -6,7 +6,7 @@ xray0h@gmail.com / cswu@gapp.nthu.edu.tw
 """
 
 
-class GoBoard:
+class Board:
     def __init__(self, size=(13, 13), after_put=None):
 
         # set board size
@@ -36,12 +36,17 @@ class GoBoard:
     def size_y(self):
         return self.__size_y
 
-    def is_collision(self, x, y):
+    def is_legal_action(self, x, y):
         placement_str = "%d,%d" % (x, y)
+
+        if not (0 <= x < self.__size_x) or not (0 <= y < self.__size_y):
+            return True
+
         if placement_str in self.__placements:
             return True
         else:
             return False
+
 
     def __add_placement(self, x, y, color):
         self.__placements.add("%d,%d" % (x, y))
@@ -69,10 +74,7 @@ class GoBoard:
 
     def _put(self, x, y, color):
 
-        if not (0 <= x < self.__size_x) or not (0 <= y < self.__size_y):
-            raise IndexError("Index must be >=0 and <%d. but you give us : (%d, %d)!!" % (self.__size_x, x, y))
-
-        if self.is_collision(x, y):
+        if self.is_legal_action(x, y):
             raise IndexError("You can't place black or white in (%d, %d)!!" % (x, y))
 
         if self.__len__() == self.__size_x * self.__size_y:
@@ -104,7 +106,7 @@ class GoBoard:
 
 
 if __name__ == '__main__':
-    b = GoBoard()
+    b = Board()
     b.put_black(0, 0)
     b.put_white(10, 11)
     # b.step_back()

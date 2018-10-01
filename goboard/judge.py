@@ -1,18 +1,18 @@
-from .goboard import GoBoard
+from .board import Board
 from .player import Player
 import numpy as np
 
 
 class Win(Exception):
     def __init__(self, player: Player, msg):
-        msg = '%s Win, ' % player.bw + msg
+        msg = '%s Win, ' % player.color + msg
         self.winer = player
         super(Win, self).__init__(msg)
 
 
 class Lose(Exception):
     def __init__(self, player: Player, msg):
-        msg = '%s Lose, ' % player.bw + msg
+        msg = '%s Lose, ' % player.color + msg
         self.loser = player
         super(Lose, self).__init__(msg)
 
@@ -32,15 +32,27 @@ class Tie(Exception):
         super(Tie, self).__init__(*arg)
 
 
-def time_judge(player):
+class ColorError(Exception):
+    def __init__(self, *arg):
+        super(ColorError, self).__init__(*arg)
+
+
+def time_judge(board: Board, player: Player, color):
     # TODO: implement overtime lose and timer
-    player.execute()
+    x, y = player.get_action(board)
+
+    if color=='white':
+        board.put_white(x, y)
+    elif color=='black':
+        board.put_black(x, y)
+    else:
+        raise ColorError
 
 
-def link_judge(board: GoBoard, player: Player):
-    if player.bw == "black":
+def link_judge(board: Board, player: Player, color):
+    if color == "black":
         d = board.dense[0, :]
-    elif player.bw == "white":
+    elif color == "white":
         d = board.dense[1, :]
     else:
         raise NameError("color must be 'black' or 'white'!")
@@ -65,12 +77,12 @@ def link_judge(board: GoBoard, player: Player):
     return True
 
 
-def move_judge(board: GoBoard, step_counter, player: Player):
+def move_judge(board: Board, step_counter, player: Player, color):
     if len(board) != step_counter + 1:
         raise Lose(player, "Move more than once or less than once in a turn.")
 
 
-def tie_judge(board: GoBoard):
+def tie_judge(board: Board, color):
     if len(board) == board.size_x * board.size_y:
         raise Tie('there is no more space on the board!!!')
 
@@ -90,8 +102,8 @@ if __name__ == '__main__':
 
     from goboard import init_plot_board, plot_board
 
-    b = GoBoard()
-    p = Player(b, black_or_white='white')
+    b = Board()
+    p = Player(b, color='white')
     init_plot_board(b)
     b.put_white(0, 0)
     b.put_white(1, 0)

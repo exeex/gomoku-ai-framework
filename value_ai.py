@@ -3,35 +3,33 @@ from random import choice
 import numpy as np
 from math import log, sqrt
 from copy import deepcopy
-from goboard import GoBoard, Player
+from goboard import Board, Player
 
 
-def analysis_board(board: GoBoard):
+def analysis_board(board: Board):
     return 0
 
 
 class ValueNetAi(Player):
-    def __init__(self, board, gui, bw):
-        super(ValueNetAi, self).__init__(board, gui, bw)
+    def __init__(self, board_info, gui, bw):
+        super(ValueNetAi, self).__init__(board_info, gui, bw)
 
         # C: UCB1常數, MAX_TIME: 模擬時間, MAX_MOVE: 最大移動步數
         # board: 目前盤面 player: 代表玩家
         # states: 狀態表
         # wins, plays: 贏棋的次數, 模擬的次數
 
-        self.board = board
+        self.board_info = board_info
         self.bw = bw
         self.C = 1.4
         self.MAX_TIME = 3
         self.MAX_MOVE = 100
         self.MAX_DEPTH = 1
-        self.value = np.zeros((board.size_x, board.size_y))
+        self.value = np.zeros((self.board_info.size_x, self.board_info.size_y))
 
-    def bestAction(self):
+    def find_actions(self, board: Board):
 
-        board = self.board
-
-        possible_moves = [[(x + 1, y),
+        possible_actions = [[(x + 1, y),
                            (x - 1, y),
                            (x, y + 1),
                            (x, y - 1),
@@ -39,30 +37,24 @@ class ValueNetAi(Player):
                            (x + 1, y + 1),
                            (x + 1, y - 1),
                            (x - 1, y - 1)]
-                          for ((x, y), _) in self.board.steps]
+                          for ((x, y), _) in board.steps]
 
-        possible_moves = set([x for y in possible_moves for x in y])
-        weighted_moves = []
+        possible_actions = set([x for y in possible_actions for x in y])
+        weighted_actions = []
 
-        for move in possible_moves:
-            board.put(*move)
+        for move in possible_actions:
             weight = analysis_board(board)
-            weighted_moves.append((move, weight))
-            board.step_back()
+            weighted_actions.append((move, weight))
 
-        weighted_moves = sorted(weighted_moves, key=lambda x: x[1], reverse=True)
-        moves = [(x, y) for ((x, y), _) in weighted_moves]
+        weighted_actions = sorted(weighted_actions, key=lambda x: x[1], reverse=True)
+        actions = [(x, y) for ((x, y), _) in weighted_actions]
 
-        return moves
+        return actions
 
-    def execute(self):
-        moves = self.bestAction()
-        print(moves)
+    def get_action(self, board: Board):
+        actions = self.find_actions(board)
+        print(actions)
 
-        for move in moves:
-            try:
-                self.put(move[0], move[1])
-                return
-            except IndexError:
-                print("GG!")
-                continue
+        for action in actions:
+            if not board.is_legal_action(*action):
+                return action

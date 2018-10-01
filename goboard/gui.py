@@ -3,7 +3,7 @@
 from tkinter import TclError
 import tkinter as tk
 import math
-from .goboard import GoBoard
+from .board import Board
 
 
 class Point:
@@ -19,7 +19,7 @@ class Point:
 
 class BoardCanvas(tk.Canvas):
     # 棋盤繪製
-    def __init__(self, board: GoBoard, master=None, height=0, width=0):
+    def __init__(self, board: Board, master=None, height=0, width=0):
         tk.Canvas.__init__(self, master, height=height, width=width)
         self.board = board
         self.chess_board_points = [[None for i in range(self.board.size_x)] for j in range(self.board.size_y)]
@@ -82,14 +82,14 @@ class BoardCanvas(tk.Canvas):
                     # 計算滑鼠的位置和點的距離
                     # 距離小於14的點
 
-                    if square_distance <= 200 and not self.board.is_collision(i, j):  # 合法落子位置
+                    if square_distance <= 200 and not self.board.is_legal_action(i, j):  # 合法落子位置
                         # set clicked and write put stone position to put_temp
                         self.clicked = True
                         self.put_temp = (i, j)
 
 
 class BoardFrame(tk.Frame):
-    def __init__(self, board: GoBoard, master=None):
+    def __init__(self, board: Board, master=None):
         tk.Frame.__init__(self, master)
         self.chess_board_label_frame = tk.LabelFrame(self, text="Chess Board", padx=5, pady=5)
         self.board_canvas = BoardCanvas(board, self.chess_board_label_frame, height=500, width=480)
@@ -99,7 +99,7 @@ class BoardFrame(tk.Frame):
 
 
 class GuiManager:
-    def __init__(self, board: GoBoard):
+    def __init__(self, board: Board):
         self.board = board
         self.bind_gui(self.board)
 
@@ -144,7 +144,7 @@ class GuiManager:
 
 
 class DummyGuiManager:
-    def __init__(self, board: GoBoard):
+    def __init__(self, board: Board):
         self.board = board
 
     def bind_gui(cls, board):
@@ -158,7 +158,7 @@ class DummyGuiManager:
                 x = int(input("input x:\n"))
                 y = int(input("input y:\n"))
 
-                if not self.board.is_collision(x, y):
+                if not self.board.is_legal_action(x, y):
                     return x, y
                 else:
                     print("Collision!")
