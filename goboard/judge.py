@@ -3,44 +3,28 @@ from .player import Player, Human
 import numpy as np
 import threading
 import time
+from .exception import ColorError, Lose, Win, Tie
 
 
-class Win(Exception):
-    def __init__(self, player: Player, msg):
-        msg = '%s Win, ' % player.color + msg
-        self.winer = player
-        super(Win, self).__init__(msg)
 
 
-class Lose(Exception):
-    def __init__(self, player: Player, msg):
-        msg = '%s Lose, ' % player.color + msg
-        self.loser = player
-        super(Lose, self).__init__(msg)
+def timeit(method, msg):
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
 
+        if 'log_time' in kw:
+            name = kw.get('log_name', method.__name__.upper())
+            kw['log_time'][name] = int((te - ts) * 1000)
+        else:
+            print('%r  %2.2f ms' % (msg, (te - ts) * 1000))
+        return result
 
-class BlackWin(Exception):
-    def __init__(self, *arg):
-        super(BlackWin, self).__init__(*arg)
-
-
-class WhiteWin(Exception):
-    def __init__(self, *arg):
-        super(WhiteWin, self).__init__(*arg)
-
-
-class Tie(Exception):
-    def __init__(self, *arg):
-        super(Tie, self).__init__(*arg)
-
-
-class ColorError(Exception):
-    def __init__(self, *arg):
-        super(ColorError, self).__init__(*arg)
+    return timed
 
 
 def time_judge(board: Board, player: Player, color, timeout=10):
-
     if not isinstance(player, Human):
 
         def get_action_wrap(board_info, data_dict):

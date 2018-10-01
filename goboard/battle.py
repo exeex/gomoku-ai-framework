@@ -1,8 +1,9 @@
 from .board import Board
 from .player import Player
 from .gui import GuiManager, DummyGuiManager
-from .judge import time_judge, link_judge, tie_judge, move_judge
+from .judge import time_judge, link_judge, tie_judge, move_judge, timeit
 import json
+import time
 
 
 def save_battle(file_name, board: Board, **kwargs):
@@ -43,16 +44,32 @@ def load_battle(file_name):
 
 
 class Round:
-    def __init__(self, player: Player, board: Board):
+    def __init__(self, player: Player, board: Board, total_cal_time=3, min_cal_time=0.4):
         self.player = player
         self.board = board
         self.color = player.color
         self.step_counter = None
         self.update_step_counter()
+        self.time_remaining = total_cal_time
+        self.total_cal_time = total_cal_time
+        self.min_cal_time = min_cal_time
 
     def __call__(self, *args, **kwargs):
+
+        print("[%s] round start" % self.color)
         self.update_step_counter()
-        time_judge(self.board, self.player, self.color, timeout=10)
+        ts = time.time()
+        if self.time_remaining > self.min_cal_time:
+            timeout = self.time_remaining
+        else:
+            timeout = self.min_cal_time
+
+        time_judge(self.board, self.player, self.color, timeout=timeout)
+        te = time.time()
+        duration = te - ts
+        self.time_remaining -= duration
+        print("[%s] Time duration : %.3f, Time remaining : %.3f" % (self.color, duration, self.time_remaining))
+
         link_judge(self.board, self.player, self.color)
         tie_judge(self.board, self.color)
         move_judge(self.board, self.step_counter, self.player, self.color)
@@ -60,6 +77,9 @@ class Round:
 
     def update_step_counter(self):
         self.step_counter = len(self.board)
+
+    def get_total_cal_time(self):
+        return self.total_cal_time - self.time_remaining
 
 
 class GomokuBattleHandler:
@@ -101,6 +121,8 @@ class GomokuBattleHandler:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # save_battle(self.log_file, self.board)
+        print("[black] total calculation time : %.3f" % self.black_round.get_total_cal_time())
+        print("[white] total calculation time : %.3f" % self.white_round.get_total_cal_time())
         self.black_player.after_battle()
         self.white_player.after_battle()
         # self.gui.after_battle()

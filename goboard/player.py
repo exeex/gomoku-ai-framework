@@ -1,8 +1,6 @@
 from .board import Board, BoardInfo
-
-import tkinter as tk
-from .gui import BoardFrame, GuiManager
-
+import time
+from .gui import GuiManager
 
 class Player:
     def __init__(self, board_info: BoardInfo, gui=None, color="black"):
@@ -22,6 +20,7 @@ class Player:
         :return:
         """
         raise NotImplementedError
+
 
     def after_battle(self):
         pass
@@ -46,6 +45,7 @@ class StupidAi(Player):
         for x in range(0, board.size_x):
             for y in range(0, board.size_y):
                 if not board.is_legal_action(x, y):
+                    time.sleep(0.3)
                     return x,y
                 else:
                     continue

@@ -1,6 +1,7 @@
 from goboard import GomokuBattleHandler
 from goboard.player import StupidAi, StupidAi
 from goboard.judge import Win, Lose, Tie
+import time
 with GomokuBattleHandler(black_player=StupidAi,
                          white_player=StupidAi,
                          board_size=(13, 13),
@@ -11,7 +12,9 @@ with GomokuBattleHandler(black_player=StupidAi,
     while True:
         try:
             black_round()
+            time.sleep(0.1)
             white_round()
+            time.sleep(0.1)
         except Win as e:
             print(e)
             break
