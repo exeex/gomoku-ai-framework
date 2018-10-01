@@ -40,7 +40,6 @@ class ColorError(Exception):
 
 
 def time_judge(board: Board, player: Player, color, timeout=10):
-    # TODO: implement overtime lose and timer
 
     if not isinstance(player, Human):
 
