@@ -2,6 +2,7 @@ from .board import Board, BoardInfo
 import time
 from .gui import GuiManager
 
+
 class Player:
     def __init__(self, board_info: BoardInfo, gui=None, color="black"):
         """
@@ -21,13 +22,8 @@ class Player:
         """
         raise NotImplementedError
 
-
     def after_battle(self):
         pass
-
-
-
-
 
 
 class Human(Player):
