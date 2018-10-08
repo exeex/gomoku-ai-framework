@@ -6,23 +6,27 @@ from copy import deepcopy
 import time
 from goboard import BoardInfo, Player
 
+# stone value notations
+# '*' : where you put stone in this action.
+# '?' : don't know state.
+# '1' : our stone
+# '2' : enemy's stone
+# '0' : empty
+# 'x' : boundary
+
+values = {
+    '?*1?': 1,
+    '?*11?': 10,
+    '?*111?': 100,
+    '?*1111?': 10000,
+    '?*2?': 1,
+    '?*22?': 10,
+    '?*222?': 110,
+    '?*22221': 9999,
+}
+
 
 def analysis_action(board: BoardInfo, action, color):
-    # stone value notations
-    # '*' : where you put stone in this action.
-    # '?' : don't know state.
-    # '1' : our stone
-    # '2' : enemy's stone
-    # '0' : empty
-    # 'x' : boundary
-
-    values = {
-        '?*1?': 1,
-        '?*11?': 10,
-        '?*111?': 100,
-        '?*1111?': 10000,
-    }
-
     if color == "black":
         is_empty = board.is_empty
         is_our = board.is_black
@@ -37,15 +41,26 @@ def analysis_action(board: BoardInfo, action, color):
     weight = 0
 
     for dx, dy in directions:
-        # TODO: not work???
         if is_our(x + dx, y + dy):
             weight += values['?*1?']
         if is_our(x + dx, y + dy) and is_our(x + 2 * dx, y + 2 * dy):
             weight += values['?*11?']
         if is_our(x + dx, y + dy) and is_our(x + 2 * dx, y + 2 * dy) and is_our(x + 3 * dx, y + 3 * dy):
             weight += values['?*111?']
-        if is_our(x + dx, y + dy) and is_our(x + 2 * dx, y + 2 * dy) and is_our(x + 3 * dx, y + 3 * dy):
+        if is_our(x + dx, y + dy) and is_our(x + 2 * dx, y + 2 * dy) and is_our(x + 3 * dx, y + 3 * dy) and is_our(
+                        x + 4 * dx, y + 4 * dy):
             weight += values['?*1111?']
+
+        if is_enemy(x + dx, y + dy):
+            weight += values['?*2?']
+        if is_enemy(x + dx, y + dy) and is_enemy(x + 2 * dx, y + 2 * dy):
+            weight += values['?*22?']
+        if is_enemy(x + dx, y + dy) and is_enemy(x + 2 * dx, y + 2 * dy) and is_our(x + 3 * dx, y + 3 * dy):
+            weight += values['?*222?']
+        if is_enemy(x + dx, y + dy) and \
+                is_enemy(x + 2 * dx, y + 2 * dy) and is_enemy(x + 3 * dx, y + 3 * dy) \
+                and is_enemy(x + 4 * dx, y + 4 * dy) and is_our(x + 5 * dx, y + 5 * dy):
+            weight += values['?*22221']
 
     return weight
 
