@@ -2,6 +2,7 @@ from .board import Board
 from .player import Player
 from .gui import GuiManager, DummyGuiManager
 from .judge import time_judge, link_judge, tie_judge, move_judge, timeit
+from .logger import log
 import json
 import time
 
@@ -11,7 +12,7 @@ def save_battle(file_name, board: Board, **kwargs):
 
     battle = {
         "battle_info": {
-            "board_size": board.size,
+            "board_size": (board.size_x, board.size_y),
             "other_info": kwargs,
         },
         "steps": list(zip(xy, bw)),
@@ -56,7 +57,7 @@ class Round:
 
     def __call__(self, *args, **kwargs):
 
-        print("[%s] round start" % self.color)
+        log("[%s] round start" % self.color)
         self.update_step_counter()
         ts = time.time()
         if self.time_remaining > self.min_cal_time:
@@ -68,7 +69,8 @@ class Round:
         te = time.time()
         duration = te - ts
         self.time_remaining -= duration
-        print("[%s] Time duration : %.3f, Time remaining : %.3f" % (self.color, duration, self.time_remaining))
+        log("[%s] put stone at %s" % (self.color, self.board.steps[-1][0]))
+        log("[%s] Time duration : %.3f, Time remaining : %.3f" % (self.color, duration, self.time_remaining))
 
         link_judge(self.board, self.player, self.color)
         tie_judge(self.board, self.color)
@@ -117,12 +119,13 @@ class GomokuBattleHandler:
         self.log_file = battle_file
 
     def __enter__(self):
+        log("[start game]")
         return self.black_round, self.white_round, self.board
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # save_battle(self.log_file, self.board)
-        print("[black] total calculation time : %.3f" % self.black_round.get_total_cal_time())
-        print("[white] total calculation time : %.3f" % self.white_round.get_total_cal_time())
+        log("[end game] black total calculation time : %.3f" % self.black_round.get_total_cal_time())
+        log("[end game] white total calculation time : %.3f" % self.white_round.get_total_cal_time())
         self.black_player.after_battle()
         self.white_player.after_battle()
         # self.gui.after_battle()

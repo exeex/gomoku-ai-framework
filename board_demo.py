@@ -1,19 +1,10 @@
 from goboard import Board
 from goboard.battle import save_battle, load_battle
 
-#init board
+# init board
 b = Board()
 
 # put black stone and white stone on the board
-b.put_black(0, 0)
-b.put_white(10, 11)
-
-# if you regret, just step back
-b.step_back()
-b.put_white(10, 12)
-
-# clear all board
-b.clear_board()
 b.put_black(0, 0)
 b.put_white(10, 11)
 
