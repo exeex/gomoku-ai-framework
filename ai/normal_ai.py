@@ -100,10 +100,7 @@ class Ai(Player):
     def get_action(self, board: BoardInfo):
 
         possible_actions = self.get_possible_actions(board)
-        print(possible_actions)
         weighted_actions = self.get_weighted_actions(board, possible_actions)
-
-        print(weighted_actions)
 
         for ((x, y), _) in weighted_actions:
             if board.is_legal_action(x, y):
