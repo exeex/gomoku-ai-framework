@@ -82,7 +82,7 @@ class BoardCanvas(tk.Canvas):
                     # 計算滑鼠的位置和點的距離
                     # 距離小於14的點
 
-                    if square_distance <= 200 and not self.board.is_legal_action(i, j):  # 合法落子位置
+                    if square_distance <= 200 and self.board.is_legal_action(i, j):  # 合法落子位置
                         # set clicked and write put stone position to put_temp
                         self.clicked = True
                         self.put_temp = (i, j)
@@ -158,7 +158,7 @@ class DummyGuiManager:
                 x = int(input("input x:\n"))
                 y = int(input("input y:\n"))
 
-                if not self.board.is_legal_action(x, y):
+                if self.board.is_legal_action(x, y):
                     return x, y
                 else:
                     print("Collision!")

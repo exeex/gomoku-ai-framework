@@ -1,12 +1,13 @@
 from goboard import GomokuBattleHandler
 from goboard.judge import Win,Lose
+from goboard.player import Human
 from ai.easy_ai import Ai as EasyAi
 from ai.normal_ai import Ai as NormalAi
 import time
 
 
 
-with GomokuBattleHandler(NormalAi, EasyAi, board_size=(13, 13)) as (black_round, white_round, board):
+with GomokuBattleHandler(Human, Human, board_size=(13, 13)) as (black_round, white_round, board):
     for _ in range(11 * 11 // 2):
         try:
             black_round()
