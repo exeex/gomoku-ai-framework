@@ -1,5 +1,5 @@
 from goboard import GomokuBattleHandler
-from goboard.player import StupidAi, StupidAi
+from ai.easy_ai import Ai as StupidAi
 from goboard.judge import Win, Lose, Tie
 import time
 with GomokuBattleHandler(black_player=StupidAi,

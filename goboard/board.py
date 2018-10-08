@@ -31,16 +31,27 @@ class Board:
     def size_y(self):
         return self.__size_y
 
-    def is_legal_action(self, x, y):
+    def is_collision(self, x, y):
         placement_str = "%d,%d" % (x, y)
 
         if not (0 <= x < self.__size_x) or not (0 <= y < self.__size_y):
-            return False
+            return True
 
         if placement_str in self.placements:
             return True
         else:
             return False
+
+    def is_legal_action(self, x, y):
+        placement_str = "%d,%d" % (x, y)
+
+        if (x < 0) or (x >= self.__size_x):
+            return False
+        if (y < 0) or (y >= self.__size_x):
+            return False
+        if placement_str in self.placements:
+            return False
+        return True
 
     def __add_placement(self, x, y, color):
         self.placements.add("%d,%d" % (x, y))
@@ -66,7 +77,7 @@ class Board:
 
     def _put(self, x, y, color):
 
-        if self.is_legal_action(x, y):
+        if not self.is_legal_action(x, y):
             raise IndexError("You can't place black or white in (%d, %d)!!" % (x, y))
 
         if self.__len__() == self.__size_x * self.__size_y:
@@ -89,35 +100,38 @@ class BoardInfo:
         self.size_x = board.size_x
         self.size_y = board.size_y
         self.is_legal_action = board.is_legal_action
+        self.is_empty = board.is_legal_action
 
     def is_black(self, x, y):
-        if not self.is_legal_action(x, y):
-            return False
 
-        if self.dense[0, x, y] == 1:
-            return True
-        else:
+        try:
+            if self.dense[0, x, y] == 1:
+                return True
+            else:
+                return False
+        except IndexError:
             return False
 
     def is_white(self, x, y):
-        if not self.is_legal_action(x, y):
+        try:
+            if self.dense[1, x, y] == 1:
+                return True
+            else:
+                return False
+        except IndexError:
             return False
 
-        if self.dense[1, x, y] == 1:
-            return True
-        else:
-            return False
 
 
 if __name__ == '__main__':
     b = Board()
     b.put_black(0, 0)
     bb = b.get_info()
-    print(bb.is_black(22, 0))
+    print(bb.is_black(10,0))
+    # print(bb.is_legal_action(0,0))
 
     b.get_info()
     b.put_white(10, 11)
-    print(bb.is_white(10, 11))
     # b.step_back()
     b.put_white(10, 11)
     # b.clear_board()

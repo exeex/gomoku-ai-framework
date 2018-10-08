@@ -19,7 +19,7 @@ class Ai(Player):
 
         for x in range(0, board.size_x):
             for y in range(0, board.size_y):
-                if not board.is_legal_action(x, y):
+                if board.is_legal_action(x, y):
                     return x, y
                 else:
                     continue

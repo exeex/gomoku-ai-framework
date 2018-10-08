@@ -8,33 +8,46 @@ from goboard import BoardInfo, Player
 
 
 def analysis_action(board: BoardInfo, action, color):
+    # stone value notations
+    # '*' : where you put stone in this action.
+    # '?' : don't know state.
+    # '1' : our stone
+    # '2' : enemy's stone
+    # '0' : empty
+    # 'x' : boundary
+
+    values = {
+        '?*1?': 1,
+        '?*11?': 10,
+        '?*111?': 100,
+        '?*1111?': 10000,
+    }
 
     if color == "black":
-        m = board.dense[0, :, :]
-        n = board.dense[1, :, :]
+        is_empty = board.is_empty
+        is_our = board.is_black
+        is_enemy = board.is_white
     else:
-        m = board.dense[1, :, :]
-        n = board.dense[0, :, :]
+        is_empty = board.is_empty
+        is_our = board.is_white
+        is_enemy = board.is_black
 
     x, y = action
     directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (-1, 1), (1, -1)]
-
+    weight = 0
 
     for dx, dy in directions:
-        try:
-            # ?11?
-            if board.is_legal_action(x+dx,y+dy) and n[x+dx,y+dy] :
+        # TODO: not work???
+        if is_our(x + dx, y + dy):
+            weight += values['?*1?']
+        if is_our(x + dx, y + dy) and is_our(x + 2 * dx, y + 2 * dy):
+            weight += values['?*11?']
+        if is_our(x + dx, y + dy) and is_our(x + 2 * dx, y + 2 * dy) and is_our(x + 3 * dx, y + 3 * dy):
+            weight += values['?*111?']
+        if is_our(x + dx, y + dy) and is_our(x + 2 * dx, y + 2 * dy) and is_our(x + 3 * dx, y + 3 * dy):
+            weight += values['?*1111?']
 
-
-
-
-
-
-    for direction in directions:
-
-
-
-    return 0
+    return weight
 
 
 class Ai(Player):
@@ -72,10 +85,13 @@ class Ai(Player):
     def get_action(self, board: BoardInfo):
 
         possible_actions = self.get_possible_actions(board)
+        print(possible_actions)
         weighted_actions = self.get_weighted_actions(board, possible_actions)
 
         print(weighted_actions)
 
         for ((x, y), _) in weighted_actions:
-            if not board.is_legal_action(x, y):
+            if board.is_legal_action(x, y):
                 return x, y
+
+        return 5, 5
