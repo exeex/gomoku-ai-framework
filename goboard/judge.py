@@ -6,8 +6,6 @@ import time
 from .exception import ColorError, Lose, Win, Tie
 
 
-
-
 def timeit(method, msg):
     def timed(*args, **kw):
         ts = time.time()

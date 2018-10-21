@@ -3,11 +3,12 @@ from .player import Player
 from .gui import GuiManager, DummyGuiManager
 from .judge import time_judge, link_judge, tie_judge, move_judge, timeit
 from .logger import log
+from .exception import ColorError
 import json
 import time
 
 
-def save_battle(file_name, board: Board, **kwargs):
+def save_game(file_name, board: Board, **kwargs):
     xy, bw = tuple(zip(*board.steps))
 
     battle = {
@@ -28,7 +29,7 @@ def save_battle(file_name, board: Board, **kwargs):
     f.write(json_str)
 
 
-def load_battle(file_name):
+def load_game(file_name):
     f = open(file=file_name, mode='r')
     data = json.load(f)
     steps = data['steps']
@@ -84,12 +85,13 @@ class Round:
         return self.total_cal_time - self.time_remaining
 
 
-class GomokuBattleHandler:
+class GomokuGameHandler:
+
     def __init__(self, black_player, white_player, battle_file="lastest_battle.json", load=False, use_gui=True,
                  board_size=None):
 
         if load:
-            self.board = load_battle(battle_file)
+            self.board = load_game(battle_file)
             # TODO: continue battle
         else:
             if board_size:
@@ -102,17 +104,17 @@ class GomokuBattleHandler:
         else:
             self.gui = DummyGuiManager(self.board)
 
-        try:
-            self.black_player = black_player(self.board.get_info(), self.gui, "black")
-            self.white_player = white_player(self.board.get_info(), self.gui, "white")
+        if black_player.color != "black":
+            raise ColorError
 
-        except TypeError:
-            raise TypeError("black_player and white_player must be class which inherit goboard.player.Player.")
+        if white_player.color != "white":
+            raise ColorError
 
-        if not isinstance(self.black_player, Player):
-            raise TypeError("black_player and white_player must be class which inherit goboard.player.Player.")
-        if not isinstance(self.white_player, Player):
-            raise TypeError("black_player and white_player must be class which inherit goboard.player.Player.")
+        black_player.bind_gui(self.gui)
+        white_player.bind_gui(self.gui)
+
+        self.black_player = black_player
+        self.white_player = white_player
 
         self.black_round = Round(self.black_player, self.board)
         self.white_round = Round(self.white_player, self.board)
@@ -123,7 +125,7 @@ class GomokuBattleHandler:
         return self.black_round, self.white_round, self.board
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # save_battle(self.log_file, self.board)
+        # save_game(self.log_file, self.board)
         log("[end game] black total calculation time : %.3f" % self.black_round.get_total_cal_time())
         log("[end game] white total calculation time : %.3f" % self.white_round.get_total_cal_time())
         self.black_player.after_battle()

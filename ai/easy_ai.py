@@ -2,8 +2,8 @@ from goboard import Player, BoardInfo, GuiManager
 
 
 class Ai(Player):
-    def __init__(self, board_info: BoardInfo, gui: GuiManager, color):
-        super(Ai, self).__init__(board_info, gui, color)
+    def __init__(self, color):
+        super(Ai, self).__init__(color)
 
     def get_action(self, board: BoardInfo) -> (int, int):
         """

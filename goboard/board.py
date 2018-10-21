@@ -139,5 +139,5 @@ if __name__ == '__main__':
     b.put_white(10, 11)
 
     print(b.dense)
-    # save_battle("gg.json", b)
-    # c = load_battle("gg.json")
+    # save_game("gg.json", b)
+    # c = load_game("gg.json")

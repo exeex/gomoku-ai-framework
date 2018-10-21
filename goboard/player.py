@@ -1,17 +1,15 @@
 from .board import Board, BoardInfo
-import time
-from .gui import GuiManager
 
 
 class Player:
-    def __init__(self, board_info: BoardInfo, gui=None, color="black"):
+    def __init__(self, color="black", **kwargs):
         """
         :param board_info: A GoBoard instance.
         :param color: to tell the ai what color he is playing. "black" or "white"
          """
-        self.board_info = board_info
+
         self.color = color
-        self.gui = gui
+        self.gui = None
 
     def get_action(self, board: BoardInfo) -> (int, int):
         """
@@ -22,14 +20,29 @@ class Player:
         """
         raise NotImplementedError
 
+    def bind_gui(self, gui):
+        self.gui = gui
+
     def after_battle(self):
         pass
 
 
 class Human(Player):
-    def __init__(self, board_info: BoardInfo, gui: GuiManager, color):
-        super(Human, self).__init__(board_info, gui, color)
+    def __init__(self, color, **kwargs):
+        super(Human, self).__init__(color, **kwargs)
 
     def get_action(self, board: Board):
         x, y = self.gui.get_put_index()
+        return x, y
+
+
+class Replay(Player):
+    def __init__(self, color, steps, **kwargs):
+        super(Replay, self).__init__(color, **kwargs)
+        self.steps = steps
+        self.counter = 0
+
+    def get_action(self, board: Board):
+        x, y = self.steps[self.counter]
+        self.counter += 1
         return x, y

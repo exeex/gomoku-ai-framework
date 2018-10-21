@@ -66,14 +66,15 @@ def analysis_action(board: BoardInfo, action, color):
 
 
 class Ai(Player):
-    def __init__(self, board_info, gui, color):
-        super(Ai, self).__init__(board_info, gui, color)
+    def __init__(self, color, **kwargs):
+        super(Ai, self).__init__(color)
+        try:
+            size_x, size_y = kwargs['board_size']
+            self.value = np.zeros((size_x, size_y))
+        except IndexError:
+            self.value = np.zeros((13, 13))
 
-        self.board_info = board_info
-        self.MAX_TIME = 3
-        self.MAX_MOVE = 100
-        self.MAX_DEPTH = 1
-        self.value = np.zeros((self.board_info.size_x, self.board_info.size_y))
+
 
     @staticmethod
     def get_possible_actions(board: BoardInfo):

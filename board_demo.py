@@ -1,5 +1,5 @@
 from goboard import Board
-from goboard.battle import save_battle, load_battle
+from goboard.battle import save_game, load_game
 
 # init board
 b = Board()
@@ -15,5 +15,5 @@ print(b.steps)
 print(b.dense)
 
 # save all steps of a game to json file
-save_battle("gg.json", b)
-c = load_battle("gg.json")
+save_game("gg.json", b)
+c = load_game("gg.json")
