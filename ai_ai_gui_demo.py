@@ -4,11 +4,11 @@ from goboard.logger import log
 from ai.normal_ai import Ai as NormalAi
 import time
 
-black_player = NormalAi("black", board_size=(7, 7))
-white_player = NormalAi("white", board_size=(7, 7))
+black_player = NormalAi("black", board_size=(13, 13))
+white_player = NormalAi("white", board_size=(13, 13))
 
 try:
-    with GomokuGameHandler(black_player, white_player, board_size=(7, 7)) as (black_round, white_round, board):
+    with GomokuGameHandler(black_player, white_player, board_size=(13, 13)) as (black_round, white_round, board):
         for _ in range(11 * 11 // 2):
             black_round()
             time.sleep(0.3)
