@@ -11,7 +11,7 @@ class Ai(Player):
 
             **Important**
             1. You must return (x, y)
-            2. Use try-except to handle invalid placement
+            2. If any exception is raised, you will lose the game directly. Use try-except to handle error/exception. 
             3. To get current state of the game, you could call board.dense or board.steps to get data.
 
             :return: int x, int y
