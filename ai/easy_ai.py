@@ -10,11 +10,11 @@ class Ai(Player):
             Implement your algorithm here.
 
             **Important**
-            1. Before function return, you must call self.put(x, y) once.
+            1. You must return (x, y)
             2. Use try-except to handle invalid placement
-            3. To get current state of the game, you could call self.board.steps to get data.
+            3. To get current state of the game, you could call board.dense or board.steps to get data.
 
-            :return:
+            :return: int x, int y
             """
 
         for x in range(0, board.size_x):
