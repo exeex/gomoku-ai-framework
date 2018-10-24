@@ -14,6 +14,13 @@ print(b.steps)
 # print all steps of the game in dense matrix form (np.ndarray)
 print(b.dense)
 
+# get board_info
+b2 = b.get_info()
+
+print(b2.steps)
+print(b2.dense)
+
+
 # save all steps of a game to json file
 save_game("gg.json", b)
 c = load_game("gg.json")
