@@ -1,0 +1,1 @@
+go build -buildmode=c-shared -o get_action.dll get_action.go
