@@ -3,10 +3,9 @@ from goboard.judge import Win, Lose
 from goboard.player import Human
 from goboard.logger import log
 from ai.normal_ai import Ai as NormalAi
-from ai.hard_ai  import Ai as HardAi
 import time
 
-black_player = HardAi("black", board_size=(13, 13))
+black_player = NormalAi("black", board_size=(13, 13))
 white_player = Human("white", board_size=(13, 13))
 try:
     with GomokuGameHandler(black_player, white_player, board_size=(13, 13)) as (black_round, white_round, board):
