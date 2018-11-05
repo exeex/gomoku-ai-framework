@@ -1,7 +1,7 @@
 from .board import Board
 from .player import Player
 from .gui import GuiManager, DummyGuiManager
-from .judge import time_judge, link_judge, tie_judge, move_judge, timeit
+from .judge import exec_and_timeout_judge, link_judge, tie_judge, move_judge, timeit
 from .logger import log
 from .exception import ColorError
 import json
@@ -46,7 +46,7 @@ def load_game(file_name):
 
 
 class Round:
-    def __init__(self, player: Player, board: Board, total_cal_time=3, min_cal_time=0.4):
+    def __init__(self, player: Player, board: Board, total_cal_time=30, min_cal_time=3):
         self.player = player
         self.board = board
         self.color = player.color
@@ -59,20 +59,30 @@ class Round:
     def __call__(self, *args, **kwargs):
 
         log("[%s] round start" % self.color)
+
+        # Init round
         self.update_step_counter()
         ts = time.time()
+
+        # If a player is running out of all total_cal_time, the time limit for each round will be min_cal_time
         if self.time_remaining > self.min_cal_time:
             timeout = self.time_remaining
         else:
             timeout = self.min_cal_time
 
-        time_judge(self.board, self.player, self.color, timeout=timeout)
+        # If time out, time judge will raise a Exception
+        exec_and_timeout_judge(self.board, self.player, self.color, timeout=timeout)
+
+        # Log time duration
         te = time.time()
         duration = te - ts
         self.time_remaining -= duration
+
+        # Show debug msg
         log("[%s] put stone at %s" % (self.color, self.board.steps[-1][0]))
         log("[%s] Time duration : %.3f, Time remaining : %.3f" % (self.color, duration, self.time_remaining))
 
+        # Check who wins and check illegal moves.
         link_judge(self.board, self.player, self.color)
         tie_judge(self.board, self.color)
         move_judge(self.board, self.step_counter, self.player, self.color)
