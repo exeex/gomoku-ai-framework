@@ -1,9 +1,14 @@
 from goboard import Player, BoardInfo, GuiManager
-
+import numpy as np
 
 class Ai(Player):
-    def __init__(self, color):
+    def __init__(self, color,**kwargs):
         super(Ai, self).__init__(color)
+        try:
+            size_x, size_y = kwargs['board_size']
+            self.value = np.zeros((size_x, size_y))
+        except IndexError:
+            self.value = np.zeros((13, 13))
 
     def get_action(self, board: BoardInfo) -> (int, int):
         """

@@ -1,13 +1,13 @@
 class Win(Exception):
     def __init__(self, player, msg):
-        msg = '%s(%s) wins, ' % (player.__class__.__name__, player.color) + msg
+        msg = '%s Win, ' % player.color + msg
         self.winner = player
         super(Win, self).__init__(msg)
 
 
 class Lose(Exception):
     def __init__(self, player, msg):
-        msg = '%s(%s) loses, ' % (player.__class__.__name__, player.color) + msg
+        msg = '%s Lose, ' % player.color + msg
         self.loser = player
         super(Lose, self).__init__(msg)
 
