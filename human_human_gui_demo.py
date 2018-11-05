@@ -8,7 +8,7 @@ black_player = Human("black")
 white_player = Human("white")
 
 with GomokuGameHandler(black_player, white_player, board_size=(13, 13)) as (black_round, white_round, board):
-    for _ in range(11 * 11 // 2):
+    for _ in range(13 * 13 // 2):
         try:
             black_round()
             white_round()
