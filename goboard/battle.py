@@ -87,38 +87,41 @@ class Round:
 
 class GomokuGameHandler:
 
-    def __init__(self, black_player, white_player, battle_file="lastest_battle.json", load=False, use_gui=True,
+    def __init__(self, black_player, white_player, log_file="lastest_battle.json", load=False, use_gui=True,
                  board_size=None):
 
+        # load battle_file if battle file exists, or create a new one
+
+        self.log_file = log_file
         if load:
-            self.board = load_game(battle_file)
+            self.board = load_game(self.log_file)
             # TODO: continue battle
         else:
-            if board_size:
-                self.board = Board(size=board_size)
-            else:
-                self.board = Board()
+            self.board = Board(size=board_size)
 
+        # build GUI
         if use_gui:
             self.gui = GuiManager(self.board)
         else:
             self.gui = DummyGuiManager(self.board)
 
+        # check color
         if black_player.color != "black":
             raise ColorError
-
         if white_player.color != "white":
             raise ColorError
 
+        # bind gui and update new screen
         black_player.bind_gui(self.gui)
         white_player.bind_gui(self.gui)
+        self.gui.update_screen()
 
+        # build Round object
         self.black_player = black_player
         self.white_player = white_player
 
         self.black_round = Round(self.black_player, self.board)
         self.white_round = Round(self.white_player, self.board)
-        self.log_file = battle_file
 
     def __enter__(self):
         log("[start game]")
@@ -130,4 +133,7 @@ class GomokuGameHandler:
         log("[end game] white total calculation time : %.3f" % self.white_round.get_total_cal_time())
         self.black_player.after_battle()
         self.white_player.after_battle()
+        self.gui.clear_board()
         # self.gui.after_battle()
+
+        # TODO: call a judge to record who wins and record execute time
