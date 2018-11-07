@@ -1,4 +1,6 @@
 .idea
 *.json
 __pycache__
+.ipynb_checkpoints
+result.pickle
 *.txt

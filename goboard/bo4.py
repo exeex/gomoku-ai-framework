@@ -1,7 +1,9 @@
 from goboard.exception import Win, Lose
+from goboard.player import Human
+from ai.easy_ai import Ai
 
 
-class bo4Handler:
+class Bo4Handler:
     def __init__(self, P1, P2, **kwargs):
         self.P1 = P1
         self.P2 = P2
@@ -12,23 +14,12 @@ class bo4Handler:
         self.p1_win = 0
         self.p2_win = 0
 
+        # self.p1_remainingTime = 0
+        # self.p2_remainingTime = 0
+
         self.P_str = ["p1", "p2"]
         self.game_counter = 0
         self.kwargs = kwargs
-
-    def get_p1_color(self):
-
-        if self.game_counter % 2 == 0:
-            return "black"
-        else:
-            return "white"
-
-    def get_p2_color(self):
-
-        if self.game_counter % 2 == 0:
-            return "white"
-        else:
-            return "black"
 
     def get_player_instance(self):
         self.game_counter = 0
@@ -52,6 +43,7 @@ class bo4Handler:
         yield self.p2, self.p1
 
     def handle_win_lose(self, e: Exception):
+        # TODO: get time remaining
         if isinstance(e, Win):
             if e.winner.color == "black":
                 if self.game_counter % 2 == 0:
@@ -76,17 +68,19 @@ class bo4Handler:
                 else:
                     self.p2_win += 1
 
+    def handle_time(self,black_time,white_time):
+
     def print_state(self):
 
         print(type(self.p1), self.p1_win)
         print(type(self.p2), self.p2_win)
+        return
 
 
 if __name__ == '__main__':
-    from goboard.player import Human
-    from ai.easy_ai import Ai
 
-    h = bo4Handler(Human, Ai)
+    h = Bo4Handler(Human, Ai, board_size=(7, 7))
+    print(dir(Ai))
     for b, w in h.get_player_instance():
         print(b.color)
         print(type(b))

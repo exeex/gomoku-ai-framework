@@ -91,7 +91,7 @@ class Round:
     def update_step_counter(self):
         self.step_counter = len(self.board)
 
-    def get_total_cal_time(self):
+    def get_run_time(self):
         return self.total_cal_time - self.time_remaining
 
 
@@ -142,8 +142,8 @@ class GomokuGameHandler:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # save_game(self.log_file, self.board)
-        log("[end game] black total calculation time : %.3f" % self.black_round.get_total_cal_time())
-        log("[end game] white total calculation time : %.3f" % self.white_round.get_total_cal_time())
+        log("[end game] black total calculation time : %.3f" % self.black_round.get_run_time())
+        log("[end game] white total calculation time : %.3f" % self.white_round.get_run_time())
         # self.black_player.after_battle()
         # self.white_player.after_battle()
         self.gui.clear_board()
