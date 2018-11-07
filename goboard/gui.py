@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+The code of gui.py is a fork of this project(Under MIT License):
+https://github.com/s8w1e2ep/GoMoKu
+Origin author is s8w1e2ep
+"""
+
 from tkinter import TclError
 import tkinter as tk
 import math
@@ -13,8 +19,8 @@ class Point:
         """
         self.x = x
         self.y = y
-        self.pixel_x = 30 + 30 * self.x
-        self.pixel_y = 30 + 30 * self.y
+        self.pixel_x = 60 + 30 * self.y
+        self.pixel_y = 60 + 30 * self.x
 
 
 class BoardCanvas(tk.Canvas):
@@ -24,24 +30,49 @@ class BoardCanvas(tk.Canvas):
         self.board = board
         self.chess_board_points = [[None for i in range(self.board.size_x)] for j in range(self.board.size_y)]
         self.init_chess_board_points()  # 畫點
+        self.init_chess_board_xy_ticks()  # 畫標記
         self.init_chess_board_canvas()  # 畫棋盤
+        self.stone_ids = []
         self.clicked = False
         self.put_temp = (0, 0)
 
     def init_chess_board_points(self):
         """
-        生成棋盤點,並且對應到像素座標
-        保存到 chess_board_points 屬性
+        生成棋盤點
         """
         for i in range(self.board.size_x):
             for j in range(self.board.size_y):
                 self.chess_board_points[i][j] = Point(i, j)  # 轉換棋盤座標像素座標
 
-    def init_chess_board_canvas(self):
+        for i in range(self.board.size_x):  # 交點橢圓
+            for j in range(self.board.size_y):
+                r = 1
+                x = self.chess_board_points[i][j].pixel_x
+                y = self.chess_board_points[i][j].pixel_y
+                self.create_oval(x - r, y - r,
+                                 x + r, y + r, )
+
+    def init_chess_board_xy_ticks(self):
         """
-        初始化棋盤
+        生成座標label
         """
 
+        r = 1
+
+        for i in range(self.board.size_x):
+            x = self.chess_board_points[i][0].pixel_x - 30
+            y = self.chess_board_points[i][0].pixel_y
+            self.create_text(x, y, text="x%d" % i)
+
+        for j in range(self.board.size_x):
+            x = self.chess_board_points[0][j].pixel_x
+            y = self.chess_board_points[0][j].pixel_y - 30
+            self.create_text(x, y, text="y%d" % j)
+
+    def init_chess_board_canvas(self):
+        """
+        畫直線橫線
+        """
         for i in range(self.board.size_x):  # 直線
             self.create_line(self.chess_board_points[i][0].pixel_x, self.chess_board_points[i][0].pixel_y,
                              self.chess_board_points[i][self.board.size_x - 1].pixel_x,
@@ -52,22 +83,29 @@ class BoardCanvas(tk.Canvas):
                              self.chess_board_points[self.board.size_x - 1][j].pixel_x,
                              self.chess_board_points[self.board.size_x - 1][j].pixel_y)
 
-        for i in range(self.board.size_x):  # 交點橢圓
-            for j in range(self.board.size_y):
-                r = 1
-                self.create_oval(self.chess_board_points[i][j].pixel_x - r, self.chess_board_points[i][j].pixel_y - r,
-                                 self.chess_board_points[i][j].pixel_x + r, self.chess_board_points[i][j].pixel_y + r)
-
-    def put_stone_on_gui(self, i, j, color):
+    def put_stone_on_gui(self, x, y, color):
+        """
+        落子
+        :param x: x index of the board (not pixel)
+        :param y: y index of the board (not pixel)
+        :param color: k: black stone, w: white stone
+        :return:
+        """
         if color == 'k':
             color = 'black'
         elif color == 'w':
             color = 'white'
-        self.create_oval(self.chess_board_points[i][j].pixel_x - 10,
-                         self.chess_board_points[i][j].pixel_y - 10,
-                         self.chess_board_points[i][j].pixel_x + 10,
-                         self.chess_board_points[i][j].pixel_y + 10, fill=color)
+        stone_id = self.create_oval(self.chess_board_points[x][y].pixel_x - 10,
+                                    self.chess_board_points[x][y].pixel_y - 10,
+                                    self.chess_board_points[x][y].pixel_x + 10,
+                                    self.chess_board_points[x][y].pixel_y + 10, fill=color)
+        self.stone_ids.append(stone_id)
         tk.Canvas.update(self)
+
+    def clear_board(self):
+        for stone_id in self.stone_ids:
+            self.delete(stone_id)
+        self.stone_ids = []
 
     def click_listener(self, event):  # click關鍵字重複
 
@@ -91,7 +129,7 @@ class BoardCanvas(tk.Canvas):
 class BoardFrame(tk.Frame):
     def __init__(self, board: Board, master=None):
         tk.Frame.__init__(self, master)
-        self.chess_board_label_frame = tk.LabelFrame(self, text="Chess Board", padx=5, pady=5)
+        self.chess_board_label_frame = tk.LabelFrame(self, text="Gomoku Board", padx=5, pady=5)
         self.board_canvas = BoardCanvas(board, self.chess_board_label_frame, height=500, width=480)
         self.board_canvas.bind('<Button-1>', self.board_canvas.click_listener)
         self.chess_board_label_frame.pack()
@@ -101,7 +139,7 @@ class BoardFrame(tk.Frame):
 class GuiManager:
     def __init__(self, board: Board):
         self.board = board
-        self.bind_gui(self.board)
+        self.bind_board(self.board)
 
     @staticmethod
     def get_tk():
@@ -113,9 +151,12 @@ class GuiManager:
             return tk_instance
 
     @classmethod
-    def bind_gui(cls, board):
+    def bind_board(cls, board: Board):
         cls.window = GuiManager.get_tk()
+
+        # Try to use the same board_frame. If board_frame exists, rebind with board, else create a new one.
         try:
+            cls.board_frame.board_canvas.board = board
             cls.board_frame.pack()
         except AttributeError:
             cls.board_frame = BoardFrame(board, cls.window)
@@ -132,6 +173,9 @@ class GuiManager:
         self.board_frame.board_canvas.clicked = False
         return x, y
 
+    def clear_board(self):
+        self.board_frame.board_canvas.clear_board()
+
     def update_screen(self):
         self.window.update()
 
@@ -146,6 +190,7 @@ class GuiManager:
 class DummyGuiManager:
     def __init__(self, board: Board):
         self.board = board
+
 
     def bind_gui(cls, board):
         pass
@@ -166,12 +211,11 @@ class DummyGuiManager:
             except ValueError:
                 continue
 
-
-
-
-
     def update_screen(self):
         pass
 
     def after_battle(self):
+        pass
+
+    def clear_board(self):
         pass

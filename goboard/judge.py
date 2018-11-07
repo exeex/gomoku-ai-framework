@@ -22,7 +22,7 @@ def timeit(method, msg):
     return timed
 
 
-def time_judge(board: Board, player: Player, color, timeout=10):
+def exec_and_timeout_judge(board: Board, player: Player, color, timeout=10):
     if not isinstance(player, Human):
 
         def get_action_wrap(board_info, data_dict):
@@ -45,7 +45,7 @@ def time_judge(board: Board, player: Player, color, timeout=10):
                 raise ColorError
 
         except IndexError:
-            raise Lose(player, "running out of time")
+            raise Lose(player, "Running out of time, or exception/error occurs in Player.get_action()")
     else:
         x, y = player.get_action(board.get_info())
         if color == 'white':

@@ -1,7 +1,7 @@
 from .board import Board
 from .player import Player
 from .gui import GuiManager, DummyGuiManager
-from .judge import time_judge, link_judge, tie_judge, move_judge, timeit
+from .judge import exec_and_timeout_judge, link_judge, tie_judge, move_judge, timeit
 from .logger import log
 from .exception import ColorError
 import json
@@ -46,7 +46,7 @@ def load_game(file_name):
 
 
 class Round:
-    def __init__(self, player: Player, board: Board, total_cal_time=3, min_cal_time=0.4):
+    def __init__(self, player: Player, board: Board, total_cal_time=30, min_cal_time=3):
         self.player = player
         self.board = board
         self.color = player.color
@@ -59,20 +59,30 @@ class Round:
     def __call__(self, *args, **kwargs):
 
         log("[%s] round start" % self.color)
+
+        # Init round
         self.update_step_counter()
         ts = time.time()
+
+        # If a player is running out of all total_cal_time, the time limit for each round will be min_cal_time
         if self.time_remaining > self.min_cal_time:
             timeout = self.time_remaining
         else:
             timeout = self.min_cal_time
 
-        time_judge(self.board, self.player, self.color, timeout=timeout)
+        # If time out, time judge will raise a Exception
+        exec_and_timeout_judge(self.board, self.player, self.color, timeout=timeout)
+
+        # Log time duration
         te = time.time()
         duration = te - ts
         self.time_remaining -= duration
+
+        # Show debug msg
         log("[%s] put stone at %s" % (self.color, self.board.steps[-1][0]))
         log("[%s] Time duration : %.3f, Time remaining : %.3f" % (self.color, duration, self.time_remaining))
 
+        # Check who wins and check illegal moves.
         link_judge(self.board, self.player, self.color)
         tie_judge(self.board, self.color)
         move_judge(self.board, self.step_counter, self.player, self.color)
@@ -87,38 +97,41 @@ class Round:
 
 class GomokuGameHandler:
 
-    def __init__(self, black_player, white_player, battle_file="lastest_battle.json", load=False, use_gui=True,
+    def __init__(self, black_player, white_player, log_file="lastest_battle.json", load=False, use_gui=True,
                  board_size=None):
 
+        # load battle_file if battle file exists, or create a new one
+
+        self.log_file = log_file
         if load:
-            self.board = load_game(battle_file)
+            self.board = load_game(self.log_file)
             # TODO: continue battle
         else:
-            if board_size:
-                self.board = Board(size=board_size)
-            else:
-                self.board = Board()
+            self.board = Board(size=board_size)
 
+        # build GUI
         if use_gui:
             self.gui = GuiManager(self.board)
         else:
             self.gui = DummyGuiManager(self.board)
 
+        # check color
         if black_player.color != "black":
             raise ColorError
-
         if white_player.color != "white":
             raise ColorError
 
+        # bind gui and update new screen
         black_player.bind_gui(self.gui)
         white_player.bind_gui(self.gui)
+        self.gui.update_screen()
 
+        # build Round object
         self.black_player = black_player
         self.white_player = white_player
 
         self.black_round = Round(self.black_player, self.board)
         self.white_round = Round(self.white_player, self.board)
-        self.log_file = battle_file
 
     def __enter__(self):
         log("[start game]")
@@ -130,4 +143,7 @@ class GomokuGameHandler:
         log("[end game] white total calculation time : %.3f" % self.white_round.get_total_cal_time())
         self.black_player.after_battle()
         self.white_player.after_battle()
+        self.gui.clear_board()
         # self.gui.after_battle()
+
+        # TODO: call a judge to record who wins and record execute time
