@@ -2,7 +2,7 @@ from .board import Board
 from .player import Player
 from .gui import GuiManager, DummyGuiManager
 from .judge import exec_and_timeout_judge, link_judge, tie_judge, move_judge, timeit
-from .logger import log
+from .logger import log, open_log_file, save_log_file
 from .exception import ColorError
 import json
 import time
@@ -96,15 +96,18 @@ class Round:
 
 
 class GomokuGameHandler:
-
-    def __init__(self, black_player, white_player, log_file="lastest_battle.json", load=False, use_gui=True,
+    def __init__(self, black_player, white_player, log_file="log.txt", game_file="game.json", load=False, use_gui=True,
                  board_size=None):
 
-        # load battle_file if battle file exists, or create a new one
-
+        # log
         self.log_file = log_file
+        open_log_file(self.log_file)
+
+        # load battle_file if battle file exists, or create a new one
+        self.game_file = game_file
+
         if load:
-            self.board = load_game(self.log_file)
+            self.board = load_game(self.game_file)
             # TODO: continue battle
         else:
             self.board = Board(size=board_size)
@@ -141,9 +144,11 @@ class GomokuGameHandler:
         # save_game(self.log_file, self.board)
         log("[end game] black total calculation time : %.3f" % self.black_round.get_total_cal_time())
         log("[end game] white total calculation time : %.3f" % self.white_round.get_total_cal_time())
-        self.black_player.after_battle()
-        self.white_player.after_battle()
+        # self.black_player.after_battle()
+        # self.white_player.after_battle()
         self.gui.clear_board()
+        save_game(self.game_file, self.board)
+        save_log_file()
         # self.gui.after_battle()
 
         # TODO: call a judge to record who wins and record execute time
