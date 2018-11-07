@@ -13,6 +13,15 @@ import json
 import pickle
 
 
+def get_log_file_name(black_player, white_player, game_num,referee):
+    log_dir = "log"
+    gamefile = '%s_vs_%s_%d.json' % (referee.palyerName(black_player), referee.palyerName(white_player), game_num)
+    logfile = '%s_vs_%s_%d.txt' % (referee.palyerName(black_player), referee.palyerName(white_player), game_num)
+    gamefile = os.path.join(log_dir, gamefile)
+    logfile = os.path.join(log_dir, logfile)
+    return gamefile, logfile
+
+
 class referee:
     def __init__(self, file_path='./ai'):
         self.file_path = file_path
@@ -45,11 +54,10 @@ class referee:
 
 
 # TODO: combine gameBlackFirst and gameWhiteFirst
-def gameBlackFirst(black_player, white_player, referee):
-    # gamefile='%d_vs_%d.json'%(black_player, white_player)
-    # logfile='%d_vs_%d.txt'%(black_player, white_player)
-
-    with GomokuGameHandler(black_player, white_player, board_size=(7, 7)) as (black_round, white_round, board):
+def gameBlackFirst(black_player, white_player, referee, game_num):
+    gamefile, logfile = get_log_file_name(black_player, white_player, game_num,referee)
+    with GomokuGameHandler(black_player, white_player, log_file=logfile, game_file=gamefile,
+                           board_size=(7, 7)) as (black_round, white_round, board):
         for _ in range(11 * 11 // 2):
             try:
                 black_round()
@@ -77,9 +85,10 @@ def gameBlackFirst(black_player, white_player, referee):
                             black_round.time_remaining, white_round.time_remaining)
 
 
-def gameWhiteFirst(black_player, white_player, referee):
-    with GomokuGameHandler(black_player, white_player, board_size=(13, 13)) as (black_round, white_round, board):
-
+def gameWhiteFirst(black_player, white_player, referee, game_num):
+    gamefile, logfile = get_log_file_name(black_player, white_player, game_num,referee)
+    with GomokuGameHandler(black_player, white_player, log_file=logfile, game_file=gamefile,
+                           board_size=(7, 7)) as (black_round, white_round, board):
         for _ in range(11 * 11 // 2):
             try:
                 white_round()
@@ -152,11 +161,16 @@ if __name__ == '__main__':
         black_player = player1('black', board_size=(13, 13))
         white_player = player2('white', board_size=(13, 13))
         temp_result = []
-        for i in range(2):
-            a = gameBlackFirst(black_player, white_player, judge)
-            temp_result.append(a)
-            b = gameWhiteFirst(black_player, white_player, judge)
-            temp_result.append(b)
+
+        a = gameBlackFirst(black_player, white_player, judge, 1)
+        temp_result.append(a)
+        b = gameWhiteFirst(black_player, white_player, judge, 2)
+        temp_result.append(b)
+        a = gameBlackFirst(black_player, white_player, judge, 3)
+        temp_result.append(a)
+        b = gameWhiteFirst(black_player, white_player, judge, 4)
+        temp_result.append(b)
+
         with open('result.json', 'a') as file:
             json.dump(temp_result, file)
             file.write("\n")
