@@ -46,7 +46,10 @@ class referee:
 
 # TODO: combine gameBlackFirst and gameWhiteFirst
 def gameBlackFirst(black_player, white_player, referee):
-    with GomokuGameHandler(black_player, white_player, board_size=(13, 13)) as (black_round, white_round, board):
+    # gamefile='%d_vs_%d.json'%(black_player, white_player)
+    # logfile='%d_vs_%d.txt'%(black_player, white_player)
+
+    with GomokuGameHandler(black_player, white_player, board_size=(7, 7)) as (black_round, white_round, board):
         for _ in range(11 * 11 // 2):
             try:
                 black_round()
