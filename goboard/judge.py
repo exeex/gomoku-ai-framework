@@ -26,7 +26,7 @@ def exec_and_timeout_judge(board: Board, player: Player, color, timeout=10):
     if not isinstance(player, Human):
 
         def get_action_wrap(board_info, data_dict):
-            x, y = player.get_action(board_info)
+            x, y = player.get_action(board_info, timeout)
             data_dict['x'] = x
             data_dict['y'] = y
 

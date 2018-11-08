@@ -68,7 +68,6 @@ class Bo4Handler:
                 else:
                     self.p2_win += 1
 
-    def handle_time(self,black_time,white_time):
 
     def print_state(self):
 

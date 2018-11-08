@@ -5,7 +5,7 @@ class Ai(Player):
     def __init__(self, color):
         super(Ai, self).__init__(color)
 
-    def get_action(self, board: BoardInfo) -> (int, int):
+    def get_action(self, board: BoardInfo, timeout) -> (int, int):
         """
             Implement your algorithm here.
 

@@ -11,7 +11,7 @@ class Player:
         self.color = color
         self.gui = None
 
-    def get_action(self, board: BoardInfo) -> (int, int):
+    def get_action(self, board: BoardInfo, timeout) -> (int, int):
         """
         Implement your algorithm here.
         To get the current status of the GoBoard, you might call self.board.steps and analysis it by your ai algorithm
@@ -31,7 +31,7 @@ class Human(Player):
     def __init__(self, color, **kwargs):
         super(Human, self).__init__(color, **kwargs)
 
-    def get_action(self, board: Board):
+    def get_action(self, board: Board, timeout):
         x, y = self.gui.get_put_index()
         return x, y
 
@@ -42,7 +42,7 @@ class Replay(Player):
         self.steps = steps
         self.counter = 0
 
-    def get_action(self, board: Board):
+    def get_action(self, board: Board, timeout):
         x, y = self.steps[self.counter]
         self.counter += 1
         return x, y

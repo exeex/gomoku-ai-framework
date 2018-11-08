@@ -98,7 +98,7 @@ class Ai(Player):
         weighted_actions = sorted(weighted_actions, key=lambda x: x[1], reverse=True)
         return weighted_actions
 
-    def get_action(self, board: BoardInfo):
+    def get_action(self, board: BoardInfo, timeout):
 
         possible_actions = self.get_possible_actions(board)
         weighted_actions = self.get_weighted_actions(board, possible_actions)
