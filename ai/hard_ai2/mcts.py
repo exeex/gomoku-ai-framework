@@ -3,7 +3,7 @@ from math import *
 import random
 from copy import deepcopy
 import numpy as np
-from ai.hard_ai2.normal_ai import get_possible_actions, get_weighted_actions, analysis_action, link_judge, is_5_link
+from ai.hard_ai2.evaluate_board import get_possible_actions, get_weighted_actions, analysis_action, link_judge, is_5_link
 
 
 class Win(Exception):
