@@ -1,10 +1,6 @@
-import time
-from random import choice
+
 import numpy as np
-from math import log, sqrt
-from copy import deepcopy
-import time
-from goboard import BoardInfo, Player
+from goboard import BoardInfo
 from scipy import signal
 
 # stone value notations
@@ -16,11 +12,16 @@ from scipy import signal
 # 'x' : boundary
 
 values = {
-    '?*1?': 1,
+    '0*10': 3,
     '?*11?': 10,
-    '?*111?': 100,
+    '?*111?': 10,
+    '0*110': 100,
+    '01*10': 100,
+    '01*110': 100,
+    '0*1112': 100,
+    '0*1110': 1000,
     '?*1111?': 10000,
-    '?*2?': 1,
+    '?*2?': 3,
     '?*22?': 10,
     '?*222?': 110,
     '?*22221': 9999,
@@ -32,10 +33,10 @@ patterns = [np.array([[1, 1, 1, 1, 1]], dtype=np.uint16),
             np.eye(5, dtype=np.uint16)[:, ::-1], ]
 
 pads = [[(0, 0), (2, 2)], [(2, 2), (0, 0)], (2, 2), (2, 2)]
+directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (-1, 1), (1, -1)]
 
-
-def analysis_action(board: BoardInfo, action, color):
-    if color == "black":
+def analysis_action(board: BoardInfo, action, activated_player: int):
+    if activated_player == 0:
         is_empty = board.is_empty
         is_our = board.is_black
         is_enemy = board.is_white
@@ -45,19 +46,56 @@ def analysis_action(board: BoardInfo, action, color):
         is_enemy = board.is_black
 
     x, y = action
-    directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (-1, 1), (1, -1)]
     weight = 0
 
     for dx, dy in directions:
-        if is_our(x + dx, y + dy):
-            weight += values['?*1?']
-        if is_our(x + dx, y + dy) and is_our(x + 2 * dx, y + 2 * dy):
-            weight += values['?*11?']
-        if is_our(x + dx, y + dy) and is_our(x + 2 * dx, y + 2 * dy) and is_our(x + 3 * dx, y + 3 * dy):
-            weight += values['?*111?']
+
+        # 活二
+        if is_empty(x - dx, y - dy) and\
+                is_our(x + dx, y + dy)and\
+                is_empty(x + 2 * dx, y + 2 * dy):
+            weight += 10
+
+        # 可能是死三
+        if      is_our(x + dx, y + dy) and\
+                is_our(x + 2 * dx, y + 2 * dy) and\
+                is_empty(x + 3 * dx, y + 3 * dy):
+            weight += 20
+
+        # 活三 '0*110'
+        if is_empty(x - dx, y - dy) and\
+                is_our(x + dx, y + dy) and\
+                is_our(x + 2 * dx, y + 2 * dy) and\
+                is_empty(x + 3 * dx, y + 3 * dy):
+            weight += 100
+
+        # 活三 '01*10'
+        if is_empty(x - 2*dx, y - 2*dy) and\
+                is_our(x - dx, y - dy) and\
+                is_our(x + 1 * dx, y + 1 * dy) and\
+                is_empty(x + 2 * dx, y + 2 * dy):
+            weight += 100
+
+        # 死四 '0*1112' 1000
+        if is_empty(x - dx, y - dy) and\
+                is_our(x + dx, y + dy) and\
+                is_our(x + 2 * dx, y + 2 * dy) and\
+                is_our(x + 3 * dx, y + 3 * dy) and\
+                is_enemy(x + 4 * dx, y + 4 * dy):
+            weight += 1000
+
+        # 活四 '0*1110' 1000
+        if is_empty(x - dx, y - dy) and\
+                is_our(x + dx, y + dy) and\
+                is_our(x + 2 * dx, y + 2 * dy) and\
+                is_our(x + 3 * dx, y + 3 * dy) and\
+                is_empty(x + 4 * dx, y + 4 * dy):
+            weight += 1000
+
+        # 五連
         if is_our(x + dx, y + dy) and is_our(x + 2 * dx, y + 2 * dy) and is_our(x + 3 * dx, y + 3 * dy) and is_our(
                 x + 4 * dx, y + 4 * dy):
-            weight += values['?*1111?']
+            weight += 10000
 
         if is_enemy(x + dx, y + dy):
             weight += values['?*2?']
@@ -73,6 +111,23 @@ def analysis_action(board: BoardInfo, action, color):
     return weight
 
 
+
+def is_5_link(board: BoardInfo, action, activated_player: int):
+    if activated_player == 0:
+        is_our = board.is_black
+    else:
+        is_our = board.is_white
+
+    x, y = action
+
+    for dx, dy in directions:
+        if is_our(x + dx, y + dy) and is_our(x + 2 * dx, y + 2 * dy) and is_our(x + 3 * dx, y + 3 * dy) and is_our(
+                x + 4 * dx, y + 4 * dy):
+            return True
+
+    return False
+
+
 def get_possible_actions(board: BoardInfo):
     possible_actions = set()
 
@@ -84,11 +139,11 @@ def get_possible_actions(board: BoardInfo):
     return list(possible_actions)
 
 
-def get_weighted_actions(board: BoardInfo, possible_actions, color):
+def get_weighted_actions(board: BoardInfo, possible_actions, activated_player: int):
     weighted_actions = []
 
     for action in possible_actions:
-        weight = analysis_action(board, action, color)
+        weight = analysis_action(board, action, activated_player)
         weighted_actions.append((action, weight))
 
     weighted_actions = sorted(weighted_actions, key=lambda x: x[1], reverse=True)

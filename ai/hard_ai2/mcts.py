@@ -3,7 +3,12 @@ from math import *
 import random
 from copy import deepcopy
 import numpy as np
-from ai.hard_ai2.normal_ai import get_possible_actions, get_weighted_actions, analysis_action, link_judge
+from ai.hard_ai2.normal_ai import get_possible_actions, get_weighted_actions, analysis_action, link_judge, is_5_link
+
+
+class Win(Exception):
+    def __init__(self, msg):
+        super(Win, self).__init__(msg)
 
 
 class GomokuState:
@@ -39,23 +44,35 @@ class GomokuState:
             self.board.board.put_white(x, y)
             self.player_just_move = 2
 
+        if is_5_link(self.board, move, 2 - self.player_just_move):
+            raise Win("GG!")
+
     def GetMoves(self):
         """ Get all possible moves from this state.
         """
-        return get_possible_actions(self.board)
+        pa = get_possible_actions(self.board)
+        if pa != []:
+            wa = get_weighted_actions(self.board, pa, 2 - self.player_just_move)
+            a, w = zip(*wa)
+
+            if len(a) > 3:
+                a = a[:3]
+        else:
+            a = pa
+        return list(a)
 
     def GetResult(self, playerjm):
         """ Get the game result from the viewpoint of playerjm.
         """
-        if link_judge(self.board.dense, playerjm-1):
+        if link_judge(self.board.dense, playerjm - 1):
             return 1.0
-        elif link_judge(self.board.dense, 2-playerjm):
+        elif link_judge(self.board.dense, 2 - playerjm):
             return 0.0
         else:
             return 0.5
 
     def __repr__(self):
-        return (self.board.dense[0, :] * 1+ self.board.dense[1, :] * 2).__repr__()
+        return (self.board.dense[0, :] * 1 + self.board.dense[1, :] * 2).__repr__()
 
 
 class Node:
@@ -136,13 +153,20 @@ def UCT(rootstate, itermax, verbose=False):
 
         # Expand
         if node.untriedMoves != []:  # if we can expand (i.e. state/node is non-terminal)
-            m = random.choice(node.untriedMoves)
-            state.DoMove(m)
-            node = node.AddChild(m, state)  # add child and descend tree
+
+            try:
+                m = random.choice(node.untriedMoves)
+                state.DoMove(m)
+                node = node.AddChild(m, state)  # add child and descend tree
+            except Win:
+                break
 
         # Rollout - this can often be made orders of magnitude quicker using a state.GetRandomMove() function
         while state.GetMoves() != []:  # while state is non-terminal
-            state.DoMove(random.choice(state.GetMoves()))
+            try:
+                state.DoMove(random.choice(state.GetMoves()))
+            except Win:
+                break
 
         # Backpropagate
         while node != None:  # backpropagate from the expanded node and work back to the root node
@@ -167,15 +191,15 @@ def UCTPlayGame():
     # state = OXOState() # uncomment to play OXO
 
     # 這邊可以選要玩啥遊戲
-    board = Board(size=(11,11))
-    state = OthelloState(board.get_info())  # uncomment to play Nim with the given number of starting chips
-    state.DoMove((5,5))
+    board = Board(size=(11, 11))
+    state = GomokuState(board.get_info())  # uncomment to play Nim with the given number of starting chips
+    state.DoMove((5, 5))
     state.player_just_move = 1
 
     while (state.GetMoves() != []):
         print(str(state))
         if state.player_just_move == 1:
-            m = UCT(rootstate=state, itermax=30, verbose=False)  # play with values for itermax and verbose = True
+            m = UCT(rootstate=state, itermax=100, verbose=False)  # play with values for itermax and verbose = True
         else:
             m = UCT(rootstate=state, itermax=30, verbose=False)
         print("Best Move: " + str(m))
