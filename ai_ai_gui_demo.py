@@ -2,9 +2,10 @@ from goboard import GomokuGameHandler
 from goboard.judge import Win, Lose
 from goboard.logger import log
 from ai.normal_ai import Ai as NormalAi
+from ai.hard_ai2 import Ai as HardAi
 import time
 
-black_player = NormalAi("black", board_size=(13, 13))
+black_player = HardAi("black")
 white_player = NormalAi("white", board_size=(13, 13))
 
 with GomokuGameHandler(black_player, white_player, board_size=(13, 13), game_file='ai1_vs_ai2.json',
