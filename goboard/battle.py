@@ -46,7 +46,7 @@ def load_game(file_name):
 
 
 class Round:
-    def __init__(self, player: Player, board: Board, total_cal_time=30, min_cal_time=3):
+    def __init__(self, player: Player, board: Board, total_cal_time=50, min_cal_time=6):
         self.player = player
         self.board = board
         self.color = player.color
