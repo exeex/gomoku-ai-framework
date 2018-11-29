@@ -47,7 +47,7 @@ def exec_and_timeout_judge(board: Board, player: Player, color, timeout=10):
         except IndexError:
             raise Lose(player, "Running out of time, or exception/error occurs in Player.get_action()")
     else:
-        x, y = player.get_action(board.get_info())
+        x, y = player.get_action(board.get_info(), timeout)
         if color == 'white':
             board.put_white(x, y)
         elif color == 'black':
